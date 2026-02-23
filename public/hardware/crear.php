@@ -6,11 +6,11 @@ declare(strict_types=1);
  * Crea un Procesador o TarjetaGrafica según la selección del usuario.
  */
 
-session_start();
-
-// Cargar configuración y autoloader
+// Cargar autoloader ANTES de session_start()
 require_once __DIR__ . '/../../config/constants.php';
 require_once __DIR__ . '/../../vendor/autoload.php';
+
+session_start();
 
 use App\Models\Procesador;
 use App\Models\TarjetaGrafica;

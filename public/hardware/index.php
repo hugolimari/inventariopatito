@@ -7,9 +7,12 @@ declare(strict_types=1);
  * HU 05 — Enlace de eliminación (link a eliminar.php?id=X)
  */
 
-// Cargar configuración y autoloader
+// Cargar autoloader ANTES de session_start() para que PHP pueda
+// deserializar los objetos Hardware almacenados en $_SESSION.
 require_once __DIR__ . '/../../config/constants.php';
 require_once __DIR__ . '/../../vendor/autoload.php';
+
+session_start();
 
 use App\Repositories\HardwareRepository;
 

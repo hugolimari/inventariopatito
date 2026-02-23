@@ -5,9 +5,11 @@ declare(strict_types=1);
  * HU 05 — Eliminar hardware por ID y redirigir al catálogo.
  */
 
-// Cargar configuración y autoloader
+// Cargar autoloader ANTES de session_start()
 require_once __DIR__ . '/../../config/constants.php';
 require_once __DIR__ . '/../../vendor/autoload.php';
+
+session_start();
 
 use App\Repositories\HardwareRepository;
 

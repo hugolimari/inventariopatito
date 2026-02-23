@@ -8,8 +8,10 @@ use App\Models\Procesador;
 use App\Models\TarjetaGrafica;
 
 /**
- * Repositorio de hardware (simulado en memoria).
- * Sigue el mismo patrón que StudentRepository.
+ * Repositorio de hardware con persistencia en sesión.
+ * Los datos se mantienen mientras el navegador esté abierto.
+ * 
+ * IMPORTANTE: session_start() debe llamarse ANTES de instanciar esta clase.
  */
 class HardwareRepository
 {
@@ -18,7 +20,31 @@ class HardwareRepository
 
     public function __construct()
     {
-        $this->seedData();
+        $this->loadFromSession();
+    }
+
+    /**
+     * Carga datos de la sesión, o genera datos de prueba si es la primera vez.
+     */
+    private function loadFromSession(): void
+    {
+        if (isset($_SESSION['hardware_items']) && is_array($_SESSION['hardware_items'])) {
+            $this->items = $_SESSION['hardware_items'];
+            $this->nextId = $_SESSION['hardware_nextId'] ?? 1;
+        } else {
+            // Primera visita: cargar datos de prueba
+            $this->seedData();
+            $this->saveToSession();
+        }
+    }
+
+    /**
+     * Persiste el estado actual en la sesión.
+     */
+    private function saveToSession(): void
+    {
+        $_SESSION['hardware_items'] = $this->items;
+        $_SESSION['hardware_nextId'] = $this->nextId;
     }
 
     /**
@@ -83,6 +109,7 @@ class HardwareRepository
             $item->setId($this->nextId++);
         }
         $this->items[$item->getId()] = $item;
+        $this->saveToSession();
     }
 
     /**
@@ -107,5 +134,6 @@ class HardwareRepository
     public function delete(int $id): void
     {
         unset($this->items[$id]);
+        $this->saveToSession();
     }
 }
