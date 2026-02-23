@@ -140,94 +140,13 @@ $top3 = array_slice($studentRepo->orderByPromedio(), 0, 3);
         <h1><?= APP_NAME ?></h1>
         <div>
             <span class="badge info">Versión <?= APP_VERSION ?></span>
-            <span class="badge success">Día 3 - Completado</span>
         </div>
-
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="label">Total Estudiantes</div>
-                <div class="number"><?= $estadisticas['total'] ?></div>
-            </div>
-            <div class="stat-card">
-                <div class="label">Aprobados</div>
-                <div class="number"><?= $estadisticas['aprobados'] ?></div>
-            </div>
-            <div class="stat-card">
-                <div class="label">Reprobados</div>
-                <div class="number"><?= $estadisticas['reprobados'] ?></div>
-            </div>
-            <div class="stat-card">
-                <div class="label">Promedio General</div>
-                <div class="number"><?= number_format($estadisticas['promedio_general'], 1) ?></div>
-            </div>
-        </div>
-
-        <h2 class="section-title">🏆 Top 3 Estudiantes</h2>
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Posición</th>
-                        <th>Código</th>
-                        <th>Nombre Completo</th>
-                        <th>Semestre</th>
-                        <th>Promedio</th>
-                        <th>Estado</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($top3 as $i => $estudiante): ?>
-                        <tr>
-                            <td><?= $i + 1 ?></td>
-                            <td><?= $estudiante->getCodigo() ?></td>
-                            <td><?= $estudiante->getNombreCompleto() ?></td>
-                            <td><?= $estudiante->getSemestre() ?>°</td>
-                            <td><strong><?= number_format($estudiante->getPromedio(), 2) ?></strong></td>
-                            <td>
-                                <span class="status-<?= $estudiante->estaActivo() ? 'active' : 'inactive' ?>">
-                                    <?= $estudiante->getEstado()->label() ?>
-                                </span>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-
-        <h2 class="section-title">👥 Todos los Estudiantes</h2>
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Código</th>
-                        <th>Nombre Completo</th>
-                        <th>Email</th>
-                        <th>Sem.</th>
-                        <th>Promedio</th>
-                        <th>Estado</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($todosEstudiantes as $estudiante): ?>
-                        <tr>
-                            <td><?= $estudiante->getCodigo() ?></td>
-                            <td><?= $estudiante->getNombreCompleto() ?></td>
-                            <td><?= $estudiante->getEmail() ?></td>
-                            <td><?= $estudiante->getSemestre() ?>°</td>
-                            <td><?= number_format($estudiante->getPromedio(), 2) ?></td>
-                            <td>
-                                <span class="status-<?= $estudiante->estaActivo() ? 'active' : 'inactive' ?>">
-                                    <?= $estudiante->getEstado()->label() ?>
-                                </span>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-
+        <h1>Esta parte aún no está lista</h1>
+        <p>Entrar aqui:</p><br>
+        <p>http://localhost/inventario/public/hardware/index.php</p><br>
+        <p>http://localhost/inventario/public/hardware/crear.php</p>
         <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; text-align: center; color: #888; font-size: 0.9em;">
-            Tecnología Web II - Día 3 Completado • <?= date('Y') ?>
+            Tecnología Web II - Ayudaaaaa <?= date('Y') ?>
         </div>
     </div>
 </body>
