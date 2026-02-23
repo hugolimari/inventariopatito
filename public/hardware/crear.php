@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -121,6 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -143,7 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin: 0 auto;
             background: white;
             border-radius: 15px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             overflow: hidden;
         }
 
@@ -177,7 +179,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: #dc3545;
         }
 
-        input, select {
+        input,
+        select {
             width: 100%;
             padding: 10px;
             border: 2px solid #e0e0e0;
@@ -186,7 +189,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             transition: border-color 0.3s;
         }
 
-        input:focus, select:focus {
+        input:focus,
+        select:focus {
             outline: none;
             border-color: #667eea;
         }
@@ -316,6 +320,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="header">
@@ -328,7 +333,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="success-message">
                     <strong>✅ Hardware registrado exitosamente</strong>
                     <p>Se ha registrado: <strong><?= htmlspecialchars($datos['marca'] . ' ' . $datos['modelo']) ?></strong>
-                       (<?= $datos['tipo'] === 'procesador' ? 'Procesador' : 'Tarjeta Gráfica' ?>)</p>
+                        (<?= $datos['tipo'] === 'procesador' ? 'Procesador' : 'Tarjeta Gráfica' ?>)</p>
                 </div>
                 <div class="buttons">
                     <a href="index.php" class="btn btn-primary">← Volver al Catálogo</a>
@@ -342,11 +347,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <label>Tipo de Hardware <span class="required">*</span></label>
                     <div class="tipo-selector">
                         <div class="tipo-option active" data-tipo="procesador" onclick="seleccionarTipo('procesador')">
-                            <div class="icon">🧠</div>
+                            <div class="icon"></div>
                             <div class="name">Procesador</div>
                         </div>
                         <div class="tipo-option" data-tipo="tarjeta_grafica" onclick="seleccionarTipo('tarjeta_grafica')">
-                            <div class="icon">🎮</div>
+                            <div class="icon"></div>
                             <div class="name">Tarjeta Gráfica</div>
                         </div>
                     </div>
@@ -357,8 +362,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="form-group <?= isset($errores['marca']) ? 'has-error' : '' ?>">
                             <label>Marca <span class="required">*</span></label>
                             <input type="text" name="marca"
-                                   value="<?= htmlspecialchars($datos['marca'] ?? '') ?>"
-                                   placeholder="Ej: AMD, Intel, NVIDIA">
+                                value="<?= htmlspecialchars($datos['marca'] ?? '') ?>"
+                                placeholder="Ej: AMD, Intel, NVIDIA">
                             <?php if (isset($errores['marca'])): ?>
                                 <?php foreach ($errores['marca'] as $error): ?>
                                     <div class="error"><?= $error ?></div>
@@ -369,8 +374,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="form-group <?= isset($errores['modelo']) ? 'has-error' : '' ?>">
                             <label>Modelo <span class="required">*</span></label>
                             <input type="text" name="modelo"
-                                   value="<?= htmlspecialchars($datos['modelo'] ?? '') ?>"
-                                   placeholder="Ej: Ryzen 5 5600X">
+                                value="<?= htmlspecialchars($datos['modelo'] ?? '') ?>"
+                                placeholder="Ej: Ryzen 5 5600X">
                             <?php if (isset($errores['modelo'])): ?>
                                 <?php foreach ($errores['modelo'] as $error): ?>
                                     <div class="error"><?= $error ?></div>
@@ -383,8 +388,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="form-group <?= isset($errores['precio']) ? 'has-error' : '' ?>">
                             <label>Precio (USD) <span class="required">*</span></label>
                             <input type="number" name="precio" step="0.01" min="0.01"
-                                   value="<?= $datos['precio'] ?? '' ?>"
-                                   placeholder="199.99">
+                                value="<?= $datos['precio'] ?? '' ?>"
+                                placeholder="199.99">
                             <?php if (isset($errores['precio'])): ?>
                                 <?php foreach ($errores['precio'] as $error): ?>
                                     <div class="error"><?= $error ?></div>
@@ -395,8 +400,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="form-group <?= isset($errores['stock']) ? 'has-error' : '' ?>">
                             <label>Stock <span class="required">*</span></label>
                             <input type="number" name="stock" min="0"
-                                   value="<?= $datos['stock'] ?? '' ?>"
-                                   placeholder="10">
+                                value="<?= $datos['stock'] ?? '' ?>"
+                                placeholder="10">
                             <?php if (isset($errores['stock'])): ?>
                                 <?php foreach ($errores['stock'] as $error): ?>
                                     <div class="error"><?= $error ?></div>
@@ -428,8 +433,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div class="form-group <?= isset($errores['nucleos']) ? 'has-error' : '' ?>">
                                 <label>Número de Núcleos <span class="required">*</span></label>
                                 <input type="number" name="nucleos" min="1"
-                                       value="<?= $datos['nucleos'] ?? '' ?>"
-                                       placeholder="6">
+                                    value="<?= $datos['nucleos'] ?? '' ?>"
+                                    placeholder="6">
                                 <?php if (isset($errores['nucleos'])): ?>
                                     <?php foreach ($errores['nucleos'] as $error): ?>
                                         <div class="error"><?= $error ?></div>
@@ -440,8 +445,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div class="form-group <?= isset($errores['frecuencia']) ? 'has-error' : '' ?>">
                                 <label>Frecuencia <span class="required">*</span></label>
                                 <input type="text" name="frecuencia"
-                                       value="<?= htmlspecialchars($datos['frecuencia'] ?? '') ?>"
-                                       placeholder="4.3GHz">
+                                    value="<?= htmlspecialchars($datos['frecuencia'] ?? '') ?>"
+                                    placeholder="4.3GHz">
                                 <?php if (isset($errores['frecuencia'])): ?>
                                     <?php foreach ($errores['frecuencia'] as $error): ?>
                                         <div class="error"><?= $error ?></div>
@@ -457,8 +462,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="form-group <?= isset($errores['vram']) ? 'has-error' : '' ?>">
                             <label>VRAM <span class="required">*</span></label>
                             <input type="text" name="vram"
-                                   value="<?= htmlspecialchars($datos['vram'] ?? '') ?>"
-                                   placeholder="8GB GDDR6">
+                                value="<?= htmlspecialchars($datos['vram'] ?? '') ?>"
+                                placeholder="8GB GDDR6">
                             <?php if (isset($errores['vram'])): ?>
                                 <?php foreach ($errores['vram'] as $error): ?>
                                     <div class="error"><?= $error ?></div>
@@ -509,4 +514,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 </body>
+
 </html>
