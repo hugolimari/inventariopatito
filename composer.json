@@ -1,0 +1,19 @@
+{
+    "name": "hugo/invemanager",
+    "description": "Sistema de Gestión de Inventario - Tecnología Web II",
+    "type": "project",
+    "require": {
+        "php": "^8.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Hugo",
+            "email": "hugomdaza@gmail.com"
+        }
+    ]
+}
