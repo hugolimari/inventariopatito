@@ -1,12 +1,11 @@
 <?php
-// Front controller for hardware deletion
+declare(strict_types=1);
+
 require_once __DIR__ . '/../../config/constants.php';
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 session_start();
 
 $container = require __DIR__ . '/../../config/di-container.php';
-$controller = new \App\Controllers\HardwareController($container);
-
-$id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-$controller->delete($id);
+$controller = new \App\Controllers\AuthController($container);
+$controller->logout();

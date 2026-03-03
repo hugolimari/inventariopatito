@@ -1,12 +1,12 @@
 <?php
-// Front controller for hardware deletion
+// controlador frontal para registrar salidas
 require_once __DIR__ . '/../../config/constants.php';
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 session_start();
 
 $container = require __DIR__ . '/../../config/di-container.php';
-$controller = new \App\Controllers\HardwareController($container);
+$controller = new \App\Controllers\MovementController($container);
 
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-$controller->delete($id);
+$controller->salida($id);

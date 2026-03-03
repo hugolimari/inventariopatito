@@ -4,9 +4,9 @@ Sistema desarrollado bajo la metodología Extreme Programming (XP) aplicando Pro
 
 ## 📝 Detalles del Proyecto
 
-* **Descripción breve:** Plataforma web ligera para el control, registro y gestión de componentes físicos de computadoras mediante persistencia en sesión.
+* **Descripción breve:** Plataforma web ligera creada siguiendo patrón MVC para el control, registro y gestión de componentes físicos de computadoras. La persistencia de datos es en memoria/sesión.
 * **Problema que resuelve:** Elimina la falta de trazabilidad en la entrada y salida de piezas de hardware, y automatiza las alertas sobre el stock crítico en el almacén.
-* **Usuarios objetivo:** Almaceneros (gestión diaria), Técnicos de ensamblaje (lectura de stock) y Administradores (reportes y bajas).
+* **Usuarios objetivo:** Almaceneros (gestión diaria), Técnicos de ensamblaje (lectura de stock) y Administradores (reportes, bajas y ahora también edición de componentes).
 
 ## ⚙️ Requisitos
 
@@ -17,11 +17,49 @@ Sistema desarrollado bajo la metodología Extreme Programming (XP) aplicando Pro
 
 ## 🚀 Instalación y Ejecución
 
-1. Clonar el repositorio.
-2. Abrir una terminal en la raíz del proyecto y ejecutar: `composer dump-autoload` (para mapear las clases).
-3. Iniciar el servidor local de PHP en la raíz del proyecto:
-   `php -S localhost:8000`
-4. Acceder en el navegador a: `http://localhost:8000/public/hardware/index.php`
+### Paso 1: Preparar la base de datos
+
+1. Asegúrate de que tienes MariaDB/MySQL ejecutándose.
+2. Clonar el repositorio.
+3. Ejecutar los scripts SQL en el siguiente orden:
+   ```bash
+   # Crear tablas
+   mysql -u root < inventario_hardware.sql
+   
+   # Insertar usuarios de prueba
+   mysql -u root < insert_test_users.sql
+   ```
+   > Si `root` no tiene contraseña, usa `-p` para que te la pida; si la tiene, usa `-u root -p`.
+
+4. Verificar que todo funciona:
+   ```bash
+   php scripts/check_db.php
+   ```
+   Este script te mostrará si la conexión es correcta y qué usuarios hay.
+
+### Paso 2: Instalar dependencias y arrancar
+
+1. Regenerar autoload:
+   ```bash
+   composer dump-autoload
+   ```
+2. Iniciar servidor PHP:
+   ```bash
+   php -S localhost:8000
+   ```
+3. Acceder en el navegador:
+   * **Login**: `http://localhost:8000/public/auth/login.php`
+   * **Inventario** (tras login): `http://localhost:8000/public/hardware/index.php`
+
+### Credenciales de prueba
+
+Usa esta para entrar:
+
+| Usuario | Contraseña |
+|---------|-----------|
+| `admin` | `Admin@2026` |
+
+> **Nota**: Aunque `insert_test_users.sql` contiene otros usuarios, el que actualmente está en tu BD es `admin` con contraseña `Admin@2026`.
 
 ## 📁 Estructura del Proyecto
 
@@ -46,6 +84,10 @@ proyecto-hardware/
 **Iteración 2: (En planificación ⏳)**
 * Autenticación, búsquedas filtradas y Base de Datos (MySQL).
 
+> El proyecto ahora incluye un sistema de login con hashing de contraseñas, verificación,
+> control de sesión y logout seguro. El esquema de la base de datos está en `inventario_hardware.sql`.
+> Nota: Se han eliminado todos los artefactos relacionados con estudiantes, ya que no forman
+> parte del sistema de inventario de hardware.
 ## 👨‍💻 Autor
 
 * Hugo Marcelo Daza Limari (pongan sus nombres)

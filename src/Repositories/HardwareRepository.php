@@ -3,137 +3,113 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
-use App\Models\Hardware;
-use App\Models\Procesador;
-use App\Models\TarjetaGrafica;
+use PDO;
 
 /**
- * Repositorio de hardware con persistencia en sesión.
- * Los datos se mantienen mientras el navegador esté abierto.
- * 
- * IMPORTANTE: session_start() debe llamarse ANTES de instanciar esta clase.
+ * Repositorio para gestionar hardware desde la tabla `hardware`.
+ * Usa PDO para persistencia en la base de datos.
  */
 class HardwareRepository
 {
-    private array $items = [];
-    private int $nextId = 1;
+    private PDO $pdo;
 
-    public function __construct()
+    public function __construct(PDO $pdo)
     {
-        $this->loadFromSession();
+        $this->pdo = $pdo;
     }
 
     /**
-     * Carga datos de la sesión, o genera datos de prueba si es la primera vez.
-     */
-    private function loadFromSession(): void
-    {
-        if (isset($_SESSION['hardware_items']) && is_array($_SESSION['hardware_items'])) {
-            $this->items = $_SESSION['hardware_items'];
-            $this->nextId = $_SESSION['hardware_nextId'] ?? 1;
-        } else {
-            // Primera visita: cargar datos de prueba
-            $this->seedData();
-            $this->saveToSession();
-        }
-    }
-
-    /**
-     * Persiste el estado actual en la sesión.
-     */
-    private function saveToSession(): void
-    {
-        $_SESSION['hardware_items'] = $this->items;
-        $_SESSION['hardware_nextId'] = $this->nextId;
-    }
-
-    /**
-     * Datos de prueba: 2 procesadores y 2 tarjetas gráficas.
-     */
-    private function seedData(): void
-    {
-        $hardwareData = [
-            new Procesador(
-                id: null,
-                marca: 'AMD',
-                modelo: 'Ryzen 5 5600X',
-                precio: 199.99,
-                stock: 15,
-                categoria: 'Procesadores',
-                nucleos: 6,
-                frecuencia: '4.6GHz'
-            ),
-            new Procesador(
-                id: null,
-                marca: 'Intel',
-                modelo: 'Core i7-13700K',
-                precio: 409.99,
-                stock: 2,  // ← Stock crítico para demostrar HU 10
-                categoria: 'Procesadores',
-                nucleos: 16,
-                frecuencia: '5.4GHz'
-            ),
-            new TarjetaGrafica(
-                id: null,
-                marca: 'NVIDIA',
-                modelo: 'GeForce RTX 4070',
-                precio: 599.99,
-                stock: 8,
-                categoria: 'Tarjetas Gráficas',
-                vram: '12GB GDDR6X'
-            ),
-            new TarjetaGrafica(
-                id: null,
-                marca: 'AMD',
-                modelo: 'Radeon RX 7600',
-                precio: 269.99,
-                stock: 1,  // ← Stock crítico para demostrar HU 10
-                categoria: 'Tarjetas Gráficas',
-                vram: '8GB GDDR6'
-            ),
-        ];
-
-        foreach ($hardwareData as $item) {
-            $this->save($item);
-        }
-    }
-
-    // ── CRUD ─────────────────────────────────────────────────
-
-    /**
-     * Guarda un item de hardware (nuevo o existente).
-     */
-    public function save(Hardware $item): void
-    {
-        if ($item->getId() === null) {
-            $item->setId($this->nextId++);
-        }
-        $this->items[$item->getId()] = $item;
-        $this->saveToSession();
-    }
-
-    /**
-     * Obtiene todos los items de hardware.
+     * Obtiene todos los items de hardware con su información de categoría.
      */
     public function findAll(): array
     {
-        return array_values($this->items);
+        // include brand name from marcas table
+        $stmt = $this->pdo->query(
+            "SELECT h.*, c.nombre as categoria_nombre, m.nombre as marca_nombre 
+             FROM hardware h 
+             JOIN categorias c ON h.id_categoria = c.id_categoria 
+             LEFT JOIN marcas m ON h.id_marca = m.id_marca 
+             WHERE h.estado = 1 
+             ORDER BY h.id_hardware DESC"
+        );
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
      * Busca un item por su ID.
      */
-    public function findById(int $id): ?Hardware
+    public function findById(int $id): ?array
     {
-        return $this->items[$id] ?? null;
+        $stmt = $this->pdo->prepare(
+            "SELECT h.*, c.nombre as categoria_nombre, m.nombre as marca_nombre 
+             FROM hardware h 
+             JOIN categorias c ON h.id_categoria = c.id_categoria 
+             LEFT JOIN marcas m ON h.id_marca = m.id_marca 
+             WHERE h.id_hardware = :id"
+        );
+        $stmt->execute(['id' => $id]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ?: null;
     }
 
     /**
-     * Elimina un item por su ID.
+     * Guarda un nuevo item de hardware en la BD.
      */
-    public function delete(int $id): void
+    public function save(array $data): int
     {
-        unset($this->items[$id]);
-        $this->saveToSession();
+        $stmt = $this->pdo->prepare(
+            "INSERT INTO hardware (id_categoria, id_marca, modelo, precio, stock, estado) 
+             VALUES (:id_categoria, :id_marca, :modelo, :precio, :stock, 1)"
+        );
+        $stmt->execute([
+            'id_categoria' => (int) $data['id_categoria'],
+            'id_marca' => (int) $data['id_marca'],
+            'modelo' => (string) $data['modelo'],
+            'precio' => (float) $data['precio'],
+            'stock' => (int) $data['stock']
+        ]);
+        return (int) $this->pdo->lastInsertId();
+    }
+
+    /**
+     * Actualiza un item de hardware existente (solo los campos provided).
+     */
+    public function update(int $id, array $data): bool
+    {
+        // Build the SET clause dynamically based on provided fields
+        $setClauses = [];
+        $params = ['id' => $id];
+        
+        $allowedFields = ['id_categoria', 'id_marca', 'modelo', 'precio', 'stock'];
+        foreach ($allowedFields as $field) {
+            if (isset($data[$field])) {
+                $setClauses[] = "$field = :$field";
+                // cast integers for numeric columns
+                if (in_array($field, ['id_categoria','id_marca','stock'], true)) {
+                    $params[$field] = (int) $data[$field];
+                } elseif ($field === 'precio') {
+                    $params[$field] = (float) $data[$field];
+                } else {
+                    $params[$field] = $data[$field];
+                }
+            }
+        }
+        
+        if (empty($setClauses)) {
+            return true; // No fields to update
+        }
+        
+        $sql = "UPDATE hardware SET " . implode(', ', $setClauses) . " WHERE id_hardware = :id";
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute($params);
+    }
+
+    /**
+     * Marca un item como eliminado (soft delete).
+     */
+    public function delete(int $id): bool
+    {
+        $stmt = $this->pdo->prepare("UPDATE hardware SET estado = 0 WHERE id_hardware = :id");
+        return $stmt->execute(['id' => $id]);
     }
 }

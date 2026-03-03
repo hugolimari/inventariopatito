@@ -9,14 +9,6 @@ namespace App\Utils;
 class Helpers {
     
     /**
-     * Genera código de estudiante
-     */
-    public static function generarCodigoEstudiante(int $numero): string {
-        $anio = (int)date('Y');
-        return sprintf('%04d-%05d', $anio, $numero);
-    }
-    
-    /**
      * Formatea nombre completo
      */
     public static function formatearNombre(

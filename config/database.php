@@ -9,7 +9,7 @@ class DatabaseConfig
 {
     public function __construct(private
         string $host = 'localhost', private
-        string $database = 'unimanager', private
+        string $database = 'inventario_hardware', private
         string $username = 'root', private
         string $password = '', private
         string $charset = 'utf8mb4', private

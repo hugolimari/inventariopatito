@@ -1,12 +1,10 @@
 <?php
-// Front controller for hardware deletion
+// Formulario / proceso de registro de usuario (solo admin)
 require_once __DIR__ . '/../../config/constants.php';
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 session_start();
 
 $container = require __DIR__ . '/../../config/di-container.php';
-$controller = new \App\Controllers\HardwareController($container);
-
-$id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-$controller->delete($id);
+$controller = new \App\Controllers\AuthController($container);
+$controller->register();

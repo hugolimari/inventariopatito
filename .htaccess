@@ -1,0 +1,15 @@
+# Rewrite requests to the /public folder so URLs don't need /public in them
+
+# If using Apache, enable mod_rewrite and allow .htaccess in the vhost config
+RewriteEngine On
+RewriteBase /
+
+# Serve existing files normally
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+# Rewrite everything else into /public
+RewriteRule ^(.*)$ public/$1 [L,QSA]
+
+# Set default directory index
+DirectoryIndex public/index.php
