@@ -6,6 +6,7 @@ namespace App\Models;
 /**
  * Clase abstracta base para todos los componentes de hardware.
  * Demuestra: Abstracción, Encapsulamiento, Herencia (clase padre).
+ * Mapea la tabla `hardware` (Class Table Inheritance).
  */
 abstract class Hardware
 {
@@ -15,7 +16,11 @@ abstract class Hardware
         protected string $modelo,
         protected float $precio,
         protected int $stock,
-        protected string $categoria
+        protected string $categoria,
+        protected bool $etiquetado = false,
+        protected int $vida_util_meses = 36,
+        protected string $estado = 'Llegada',
+        protected int $usuario_id = 1
     ) {}
 
     // ── Getters ──────────────────────────────────────────────
@@ -26,19 +31,28 @@ abstract class Hardware
     public function getPrecio(): float { return $this->precio; }
     public function getStock(): int { return $this->stock; }
     public function getCategoria(): string { return $this->categoria; }
+    public function getEtiquetado(): bool { return $this->etiquetado; }
+    public function getVidaUtilMeses(): int { return $this->vida_util_meses; }
+    public function getEstado(): string { return $this->estado; }
+    public function getUsuarioId(): int { return $this->usuario_id; }
 
-    // ── Setter para ID (usado por el repositorio) ───────────
+    // ── Setters ──────────────────────────────────────────────
 
-    public function setId(int $id): void
-    {
-        $this->id = $id;
-    }
+    public function setId(int $id): void { $this->id = $id; }
+    public function setMarca(string $marca): void { $this->marca = $marca; }
+    public function setModelo(string $modelo): void { $this->modelo = $modelo; }
+    public function setPrecio(float $precio): void { $this->precio = $precio; }
+    public function setStock(int $stock): void { $this->stock = $stock; }
+    public function setCategoria(string $categoria): void { $this->categoria = $categoria; }
+    public function setEtiquetado(bool $etiquetado): void { $this->etiquetado = $etiquetado; }
+    public function setVidaUtilMeses(int $meses): void { $this->vida_util_meses = $meses; }
+    public function setEstado(string $estado): void { $this->estado = $estado; }
+    public function setUsuarioId(int $id): void { $this->usuario_id = $id; }
 
     // ── Lógica de negocio ───────────────────────────────────
 
     /**
      * Verifica si el stock está en nivel crítico (menos de 3 unidades).
-     * Usado en HU 10 para resaltar filas con alerta visual.
      */
     public function esStockCritico(): bool
     {
@@ -46,9 +60,7 @@ abstract class Hardware
     }
 
     /**
-     * Método abstracto — cada subclase lo implementa de forma diferente.
-     * Esto es POLIMORFISMO: la misma llamada produce distinto resultado
-     * según el tipo concreto del objeto.
+     * Método abstracto — cada subclase lo implementa (Polimorfismo).
      */
     abstract public function obtenerDetallesTecnicos(): string;
 }

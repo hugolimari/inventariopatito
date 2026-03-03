@@ -1,153 +1,99 @@
 <?php
 declare(strict_types=1);
 
-// Cargar configuración
+/**
+ * ═══════════════════════════════════════════════════════════
+ *  FRONT CONTROLLER — Enrutador Frontal del Sistema
+ * ═══════════════════════════════════════════════════════════
+ * 
+ * Todas las peticiones HTTP pasan por este archivo.
+ * Rutas: ?controller=X&action=Y
+ * 
+ * Ejemplo:
+ *   index.php?controller=hardware&action=index
+ *   index.php?controller=auth&action=loginForm
+ */
+
+// ── 1. Cargar dependencias ──────────────────────────────────
+require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../config/constants.php';
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/sesion.php';  // Inicia sesión segura
 
-// Cargar autoloader de Composer
-require_once __DIR__ . '/../vendor/autoload.php';
+// ── 2. Generar CSRF token si no existe ──────────────────────
+if (!isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 
-// Importar clases necesarias
-use App\Repositories\StudentRepository;
-use App\Enums\StudentStatus;
+// ── 3. Leer parámetros de ruta ──────────────────────────────
+$controller = $_GET['controller'] ?? 'auth';
+$action     = $_GET['action']     ?? 'loginForm';
 
-// Crear repositorio
-$studentRepo = new StudentRepository();
+// ── 4. Rutas públicas (no requieren autenticación) ──────────
+$rutasPublicas = [
+    'auth' => ['loginForm', 'login'],
+];
 
-// Obtener datos
-$todosEstudiantes = $studentRepo->findAll();
-$estadisticas = $studentRepo->getEstadisticas();
-$top3 = array_slice($studentRepo->orderByPromedio(), 0, 3);
-?>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= APP_NAME ?> - Dashboard</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+// ── 5. Verificar autenticación ──────────────────────────────
+$esPublica = isset($rutasPublicas[$controller]) && in_array($action, $rutasPublicas[$controller]);
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
+if (!$esPublica && !isset($_SESSION['usuario_id'])) {
+    header('Location: ' . BASE_URL . '?controller=auth&action=loginForm');
+    exit;
+}
 
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+// ── 6. Mapa de controladores ────────────────────────────────
+$controladores = [
+    'auth'     => \App\Controllers\AuthController::class,
+    'hardware' => \App\Controllers\HardwareController::class,
+    'usuario'  => \App\Controllers\UsuarioController::class,
+];
 
-        h1 {
-            color: #667eea;
-            font-size: 2em;
-            margin-bottom: 5px;
-        }
+// ── 7. Despachar la petición ────────────────────────────────
+if (!isset($controladores[$controller])) {
+    http_response_code(404);
+    echo '<h1>404 — Controlador no encontrado</h1>';
+    exit;
+}
 
-        .badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 0.8em;
-            font-weight: bold;
-            margin: 5px;
-        }
+$claseControlador = $controladores[$controller];
+$instancia = new $claseControlador();
 
-        .badge.success { background: #d4edda; color: #155724; }
-        .badge.warning { background: #fff3cd; color: #856404; }
-        .badge.info { background: #d1ecf1; color: #0c5460; }
+if (!method_exists($instancia, $action)) {
+    http_response_code(404);
+    echo '<h1>404 — Acción no encontrada</h1>';
+    exit;
+}
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin: 25px 0;
-        }
+// ── 8. Determinar si usar layout ────────────────────────────
+// El login tiene su propio HTML; el resto usa layout.php
+$sinLayout = ['loginForm', 'login', 'logout'];
 
-        .stat-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 15px;
-            text-align: center;
-        }
+if ($controller === 'auth' && in_array($action, $sinLayout)) {
+    // Auth maneja su propia vista completa
+    $instancia->$action();
+} else {
+    // Capturar salida del controlador para inyectar en layout
+    ob_start();
+    $instancia->$action();
+    $contenido = ob_get_clean();
 
-        .stat-card .number {
-            font-size: 2.5em;
-            font-weight: bold;
-            margin: 10px 0;
-        }
+    // Determinar título
+    $titulos = [
+        'hardware' => [
+            'index'     => 'Catálogo',
+            'crear'     => 'Agregar Hardware',
+            'editar'    => 'Editar Hardware',
+            'guardar'   => 'Agregar Hardware',
+            'actualizar'=> 'Editar Hardware',
+        ],
+        'usuario' => [
+            'index'  => 'Usuarios',
+            'crear'  => 'Registrar Usuario',
+            'guardar'=> 'Registrar Usuario',
+        ],
+    ];
+    $titulo = $titulos[$controller][$action] ?? APP_NAME;
 
-        .stat-card .label {
-            font-size: 0.9em;
-            opacity: 0.9;
-        }
-
-        .table-container {
-            margin: 25px 0;
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-        }
-
-        th {
-            background: #f8f9fa;
-            color: #667eea;
-            padding: 12px;
-            text-align: left;
-            font-weight: 600;
-            border-bottom: 2px solid #667eea;
-        }
-
-        td {
-            padding: 10px 12px;
-            border-bottom: 1px solid #e9ecef;
-        }
-
-        tr:hover {
-            background: #f8f9fa;
-        }
-
-        .section-title {
-            color: #667eea;
-            font-size: 1.3em;
-            margin: 30px 0 15px 0;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #667eea;
-        }
-
-        .status-active { color: #28a745; font-weight: bold; }
-        .status-inactive { color: #dc3545; font-weight: bold; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1><?= APP_NAME ?></h1>
-        <div>
-            <span class="badge info">Versión <?= APP_VERSION ?></span>
-        </div>
-        <h1>Esta parte aún no está lista</h1>
-        <p>Entrar aqui:</p><br>
-        <p>http://localhost/inventario/public/hardware/index.php</p><br>
-        <p>http://localhost/inventario/public/hardware/crear.php</p>
-        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; text-align: center; color: #888; font-size: 0.9em;">
-            Tecnología Web II - Ayudaaaaa <?= date('Y') ?>
-        </div>
-    </div>
-</body>
-</html>
+    require VIEWS_PATH . '/layout.php';
+}

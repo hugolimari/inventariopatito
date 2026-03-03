@@ -11,6 +11,10 @@ define('ROOT_PATH', dirname(__DIR__));
 define('PUBLIC_PATH', ROOT_PATH . '/public');
 define('CONFIG_PATH', ROOT_PATH . '/config');
 define('SRC_PATH', ROOT_PATH . '/src');
+define('VIEWS_PATH', SRC_PATH . '/Views');
+
+// URL base para el Front Controller
+define('BASE_URL', '/inventario/public/index.php');
 
 // Zona horaria
 date_default_timezone_set('America/La_Paz');

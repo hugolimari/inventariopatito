@@ -5,7 +5,7 @@ namespace App\Models;
 
 /**
  * Modelo de Tarjeta Gráfica — hereda de Hardware.
- * Demuestra: Herencia y Polimorfismo (implementa obtenerDetallesTecnicos).
+ * Mapea la tabla `tarjetas_graficas` (tabla hija en Class Table Inheritance).
  */
 class TarjetaGrafica extends Hardware
 {
@@ -16,20 +16,25 @@ class TarjetaGrafica extends Hardware
         float $precio,
         int $stock,
         string $categoria,
-        private string $vram
+        private string $vram,
+        bool $etiquetado = false,
+        int $vida_util_meses = 36,
+        string $estado = 'Llegada',
+        int $usuario_id = 1
     ) {
-        parent::__construct($id, $marca, $modelo, $precio, $stock, $categoria);
+        parent::__construct($id, $marca, $modelo, $precio, $stock, $categoria, $etiquetado, $vida_util_meses, $estado, $usuario_id);
     }
 
     // ── Getter específico ───────────────────────────────────
 
     public function getVram(): string { return $this->vram; }
 
+    // ── Setter específico ───────────────────────────────────
+
+    public function setVram(string $vram): void { $this->vram = $vram; }
+
     // ── Polimorfismo ────────────────────────────────────────
 
-    /**
-     * Retorna los detalles técnicos específicos de una tarjeta gráfica.
-     */
     public function obtenerDetallesTecnicos(): string
     {
         return "{$this->vram}";

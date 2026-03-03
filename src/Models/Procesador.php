@@ -5,7 +5,7 @@ namespace App\Models;
 
 /**
  * Modelo de Procesador — hereda de Hardware.
- * Demuestra: Herencia y Polimorfismo (implementa obtenerDetallesTecnicos).
+ * Mapea la tabla `procesadores` (tabla hija en Class Table Inheritance).
  */
 class Procesador extends Hardware
 {
@@ -17,9 +17,13 @@ class Procesador extends Hardware
         int $stock,
         string $categoria,
         private int $nucleos,
-        private string $frecuencia
+        private string $frecuencia,
+        bool $etiquetado = false,
+        int $vida_util_meses = 36,
+        string $estado = 'Llegada',
+        int $usuario_id = 1
     ) {
-        parent::__construct($id, $marca, $modelo, $precio, $stock, $categoria);
+        parent::__construct($id, $marca, $modelo, $precio, $stock, $categoria, $etiquetado, $vida_util_meses, $estado, $usuario_id);
     }
 
     // ── Getters específicos ─────────────────────────────────
@@ -27,11 +31,13 @@ class Procesador extends Hardware
     public function getNucleos(): int { return $this->nucleos; }
     public function getFrecuencia(): string { return $this->frecuencia; }
 
+    // ── Setters específicos ─────────────────────────────────
+
+    public function setNucleos(int $nucleos): void { $this->nucleos = $nucleos; }
+    public function setFrecuencia(string $frecuencia): void { $this->frecuencia = $frecuencia; }
+
     // ── Polimorfismo ────────────────────────────────────────
 
-    /**
-     * Retorna los detalles técnicos específicos de un procesador.
-     */
     public function obtenerDetallesTecnicos(): string
     {
         return "{$this->nucleos} Núcleos a {$this->frecuencia}";
