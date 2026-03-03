@@ -1,8 +1,7 @@
 <?php
 /**
- * Vista: Catálogo de Hardware con búsqueda y nuevos campos.
+ * Vista: Catálogo de Hardware (6 tipos).
  * Variables: $items (array), $alertas (int), $query (string)
- * Se incluye dentro de layout.php.
  */
 $msg = $_GET['msg'] ?? null;
 ?>
@@ -17,7 +16,6 @@ $msg = $_GET['msg'] ?? null;
     <div class="alert alert-danger">❌ Hardware no encontrado.</div>
 <?php endif; ?>
 
-<!-- Header -->
 <div class="page-header">
     <div>
         <h1>🖥️ Catálogo de Hardware</h1>
@@ -26,7 +24,6 @@ $msg = $_GET['msg'] ?? null;
     <a href="<?= BASE_URL ?>?controller=hardware&action=crear" class="btn btn-primary">➕ Agregar Hardware</a>
 </div>
 
-<!-- Stats -->
 <div class="stats-grid">
     <div class="stat-card">
         <div class="number"><?= count($items) ?></div>
@@ -38,7 +35,6 @@ $msg = $_GET['msg'] ?? null;
     </div>
 </div>
 
-<!-- Search -->
 <form method="GET" action="<?= BASE_URL ?>" class="search-bar">
     <input type="hidden" name="controller" value="hardware">
     <input type="hidden" name="action" value="index">
@@ -52,69 +48,75 @@ $msg = $_GET['msg'] ?? null;
 
 <?php if (!empty($query)): ?>
     <p style="color: var(--text-secondary); font-size: 0.88em; margin-bottom: 16px;">
-        Mostrando resultados para: <strong style="color: var(--accent-light)">"<?= htmlspecialchars($query) ?>"</strong>
+        Resultados para: <strong style="color: var(--accent-light)">"<?= htmlspecialchars($query) ?>"</strong>
         (<?= count($items) ?> encontrados)
     </p>
 <?php endif; ?>
 
-<!-- Table -->
 <div class="table-container">
     <table>
         <thead>
             <tr>
                 <th>ID</th>
+                <th>Tipo</th>
                 <th>Marca</th>
                 <th>Modelo</th>
                 <th>Categoría</th>
                 <th>Precio</th>
                 <th>Stock</th>
+                <th>Estado</th>
                 <th>Etiquetado</th>
                 <th>Vida Útil</th>
-                <th>Estado</th>
-                <th>Detalles</th>
+                <th>Detalles Técnicos</th>
                 <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
             <?php if (empty($items)): ?>
                 <tr>
-                    <td colspan="11" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                    <td colspan="12" style="text-align: center; padding: 40px; color: var(--text-muted);">
                         No se encontraron productos.
                     </td>
                 </tr>
             <?php else: ?>
+                <?php
+                $iconoTipo = [
+                    'Procesador' => '🧠', 'TarjetaGrafica' => '🎮', 'MemoriaRAM' => '🧩',
+                    'Almacenamiento' => '💾', 'PlacaBase' => '🔧', 'FuentePoder' => '⚡',
+                ];
+                ?>
                 <?php foreach ($items as $item): ?>
                     <tr <?php if ($item->esStockCritico()): ?>class="stock-critico"<?php endif; ?>>
                         <td><?= $item->getId() ?></td>
+                        <td>
+                            <?= $iconoTipo[$item->getTipoClase()] ?? '📦' ?>
+                            <span style="font-size: 0.82em;"><?= htmlspecialchars($item->getTipoClase()) ?></span>
+                        </td>
                         <td><?= htmlspecialchars($item->getMarca()) ?></td>
                         <td><strong><?= htmlspecialchars($item->getModelo()) ?></strong></td>
-                        <td><?= htmlspecialchars($item->getCategoria()) ?></td>
+                        <td><span class="badge badge-info"><?= htmlspecialchars($item->getCategoria()) ?></span></td>
                         <td>$<?= number_format($item->getPrecio(), 2) ?></td>
                         <td>
                             <span class="badge <?= $item->esStockCritico() ? 'badge-danger' : 'badge-success' ?>">
-                                <?= $item->getStock() ?> uds. <?= $item->esStockCritico() ? '⚠️' : '✅' ?>
+                                <?= $item->getStock() ?> uds.
                             </span>
                         </td>
-                        <td>
-                            <?php if ($item->getEtiquetado()): ?>
-                                <span class="badge badge-success">Sí ✔</span>
-                            <?php else: ?>
-                                <span class="badge badge-warning">No</span>
-                            <?php endif; ?>
-                        </td>
-                        <td><?= $item->getVidaUtilMeses() ?> meses</td>
                         <td>
                             <?php
                             $estadoClase = match($item->getEstado()) {
                                 'Inventariado' => 'badge-success',
-                                'Llegada'      => 'badge-info',
+                                'Llegada'      => 'badge-warning',
                                 'Baja'         => 'badge-danger',
                                 default        => 'badge-info'
                             };
                             ?>
                             <span class="badge <?= $estadoClase ?>"><?= htmlspecialchars($item->getEstado()) ?></span>
                         </td>
-                        <td><?= htmlspecialchars($item->obtenerDetallesTecnicos()) ?></td>
+                        <td>
+                            <?= $item->getEtiquetado() ? '<span class="badge badge-success">Sí ✔</span>' : '<span class="badge badge-warning">No</span>' ?>
+                        </td>
+                        <td><?= $item->getVidaUtilMeses() ?> meses</td>
+                        <td style="font-size: 0.82em; max-width: 180px;"><?= htmlspecialchars($item->obtenerDetallesTecnicos()) ?></td>
                         <td style="white-space: nowrap;">
                             <a href="<?= BASE_URL ?>?controller=hardware&action=editar&id=<?= $item->getId() ?>"
                                class="btn btn-secondary btn-sm">✏️ Editar</a>

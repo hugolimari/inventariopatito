@@ -5,7 +5,6 @@ namespace App\Models;
 
 /**
  * Clase abstracta base para todos los componentes de hardware.
- * Demuestra: Abstracción, Encapsulamiento, Herencia (clase padre).
  * Mapea la tabla `hardware` (Class Table Inheritance).
  */
 abstract class Hardware
@@ -17,6 +16,7 @@ abstract class Hardware
         protected float $precio,
         protected int $stock,
         protected string $categoria,
+        protected string $tipo_clase,
         protected bool $etiquetado = false,
         protected int $vida_util_meses = 36,
         protected string $estado = 'Llegada',
@@ -31,6 +31,7 @@ abstract class Hardware
     public function getPrecio(): float { return $this->precio; }
     public function getStock(): int { return $this->stock; }
     public function getCategoria(): string { return $this->categoria; }
+    public function getTipoClase(): string { return $this->tipo_clase; }
     public function getEtiquetado(): bool { return $this->etiquetado; }
     public function getVidaUtilMeses(): int { return $this->vida_util_meses; }
     public function getEstado(): string { return $this->estado; }
@@ -44,6 +45,7 @@ abstract class Hardware
     public function setPrecio(float $precio): void { $this->precio = $precio; }
     public function setStock(int $stock): void { $this->stock = $stock; }
     public function setCategoria(string $categoria): void { $this->categoria = $categoria; }
+    public function setTipoClase(string $tipo): void { $this->tipo_clase = $tipo; }
     public function setEtiquetado(bool $etiquetado): void { $this->etiquetado = $etiquetado; }
     public function setVidaUtilMeses(int $meses): void { $this->vida_util_meses = $meses; }
     public function setEstado(string $estado): void { $this->estado = $estado; }
@@ -51,16 +53,10 @@ abstract class Hardware
 
     // ── Lógica de negocio ───────────────────────────────────
 
-    /**
-     * Verifica si el stock está en nivel crítico (menos de 3 unidades).
-     */
     public function esStockCritico(): bool
     {
         return $this->stock < 3;
     }
 
-    /**
-     * Método abstracto — cada subclase lo implementa (Polimorfismo).
-     */
     abstract public function obtenerDetallesTecnicos(): string;
 }

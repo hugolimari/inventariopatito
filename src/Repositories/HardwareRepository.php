@@ -6,12 +6,16 @@ namespace App\Repositories;
 use App\Models\Hardware;
 use App\Models\Procesador;
 use App\Models\TarjetaGrafica;
+use App\Models\MemoriaRAM;
+use App\Models\Almacenamiento;
+use App\Models\PlacaBase;
+use App\Models\FuentePoder;
 use Database;
 use PDO;
 
 /**
  * Repositorio de Hardware — CRUD con PDO y transacciones.
- * Implementa Class Table Inheritance: hardware + procesadores/tarjetas_graficas.
+ * Soporta 6 tipos: Procesador, TarjetaGrafica, MemoriaRAM, Almacenamiento, PlacaBase, FuentePoder.
  */
 class HardwareRepository
 {
@@ -24,20 +28,13 @@ class HardwareRepository
 
     // ── CREATE ───────────────────────────────────────────────
 
-    /**
-     * Guarda un nuevo hardware con transacción:
-     * 1. INSERT en `hardware` → obtener lastInsertId()
-     * 2. INSERT en tabla hija según el tipo de objeto.
-     */
     public function save(Hardware $item): void
     {
         $this->db->beginTransaction();
-
         try {
-            // 1. Insertar en tabla base `hardware`
             $stmt = $this->db->prepare(
-                'INSERT INTO hardware (marca, modelo, precio, stock, categoria, etiquetado, vida_util_meses, estado, usuario_id)
-                 VALUES (:marca, :modelo, :precio, :stock, :categoria, :etiquetado, :vida_util, :estado, :usuario_id)'
+                'INSERT INTO hardware (marca, modelo, precio, stock, categoria, tipo_clase, etiquetado, vida_util_meses, estado, usuario_id)
+                 VALUES (:marca, :modelo, :precio, :stock, :categoria, :tipo_clase, :etiquetado, :vida_util, :estado, :usuario_id)'
             );
             $stmt->execute([
                 ':marca'      => $item->getMarca(),
@@ -45,36 +42,16 @@ class HardwareRepository
                 ':precio'     => $item->getPrecio(),
                 ':stock'      => $item->getStock(),
                 ':categoria'  => $item->getCategoria(),
+                ':tipo_clase' => $item->getTipoClase(),
                 ':etiquetado' => $item->getEtiquetado() ? 1 : 0,
                 ':vida_util'  => $item->getVidaUtilMeses(),
                 ':estado'     => $item->getEstado(),
                 ':usuario_id' => $item->getUsuarioId(),
             ]);
 
-            $hardwareId = (int) $this->db->lastInsertId();
-            $item->setId($hardwareId);
-
-            // 2. Insertar en tabla hija
-            if ($item instanceof Procesador) {
-                $stmt = $this->db->prepare(
-                    'INSERT INTO procesadores (hardware_id, nucleos, frecuencia)
-                     VALUES (:id, :nucleos, :frecuencia)'
-                );
-                $stmt->execute([
-                    ':id'         => $hardwareId,
-                    ':nucleos'    => $item->getNucleos(),
-                    ':frecuencia' => $item->getFrecuencia(),
-                ]);
-            } elseif ($item instanceof TarjetaGrafica) {
-                $stmt = $this->db->prepare(
-                    'INSERT INTO tarjetas_graficas (hardware_id, vram)
-                     VALUES (:id, :vram)'
-                );
-                $stmt->execute([
-                    ':id'   => $hardwareId,
-                    ':vram' => $item->getVram(),
-                ]);
-            }
+            $id = (int) $this->db->lastInsertId();
+            $item->setId($id);
+            $this->insertarHijo($item, $id);
 
             $this->db->commit();
         } catch (\Exception $e) {
@@ -85,78 +62,42 @@ class HardwareRepository
 
     // ── READ ─────────────────────────────────────────────────
 
-    /**
-     * Obtiene todos los items con LEFT JOIN a tablas hijas.
-     */
     public function findAll(): array
     {
-        $sql = 'SELECT h.*, p.nucleos, p.frecuencia, tg.vram
-                FROM hardware h
-                LEFT JOIN procesadores p ON h.id = p.hardware_id
-                LEFT JOIN tarjetas_graficas tg ON h.id = tg.hardware_id
-                ORDER BY h.id DESC';
-
-        $stmt = $this->db->query($sql);
+        $sql = $this->buildSelectQuery();
+        $stmt = $this->db->query($sql . ' ORDER BY h.id DESC');
         return $this->hydrate($stmt->fetchAll());
     }
 
-    /**
-     * Busca un hardware por su ID.
-     */
     public function findById(int $id): ?Hardware
     {
-        $sql = 'SELECT h.*, p.nucleos, p.frecuencia, tg.vram
-                FROM hardware h
-                LEFT JOIN procesadores p ON h.id = p.hardware_id
-                LEFT JOIN tarjetas_graficas tg ON h.id = tg.hardware_id
-                WHERE h.id = :id';
-
+        $sql = $this->buildSelectQuery() . ' WHERE h.id = :id';
         $stmt = $this->db->prepare($sql);
         $stmt->execute([':id' => $id]);
         $row = $stmt->fetch();
-
-        if (!$row) {
-            return null;
-        }
-
+        if (!$row) return null;
         $items = $this->hydrate([$row]);
-        return $items[0];
+        return $items[0] ?? null;
     }
 
-    /**
-     * Búsqueda por texto (LIKE) en marca, modelo o categoría.
-     * Previene SQL Injection con Prepared Statements.
-     */
     public function search(string $query): array
     {
-        $sql = 'SELECT h.*, p.nucleos, p.frecuencia, tg.vram
-                FROM hardware h
-                LEFT JOIN procesadores p ON h.id = p.hardware_id
-                LEFT JOIN tarjetas_graficas tg ON h.id = tg.hardware_id
-                WHERE h.marca LIKE :q OR h.modelo LIKE :q2 OR h.categoria LIKE :q3
-                ORDER BY h.id DESC';
-
+        $sql = $this->buildSelectQuery() . ' WHERE h.marca LIKE :q OR h.modelo LIKE :q2 OR h.categoria LIKE :q3 ORDER BY h.id DESC';
         $term = '%' . $query . '%';
         $stmt = $this->db->prepare($sql);
         $stmt->execute([':q' => $term, ':q2' => $term, ':q3' => $term]);
-
         return $this->hydrate($stmt->fetchAll());
     }
 
     // ── UPDATE ───────────────────────────────────────────────
 
-    /**
-     * Actualiza un hardware existente con transacción en ambas tablas.
-     */
     public function update(Hardware $item): void
     {
         $this->db->beginTransaction();
-
         try {
-            // 1. Actualizar tabla base
             $stmt = $this->db->prepare(
                 'UPDATE hardware SET marca = :marca, modelo = :modelo, precio = :precio,
-                        stock = :stock, categoria = :categoria, etiquetado = :etiquetado,
+                        stock = :stock, categoria = :categoria, tipo_clase = :tipo_clase, etiquetado = :etiquetado,
                         vida_util_meses = :vida_util, estado = :estado, usuario_id = :usuario_id
                  WHERE id = :id'
             );
@@ -166,6 +107,7 @@ class HardwareRepository
                 ':precio'     => $item->getPrecio(),
                 ':stock'      => $item->getStock(),
                 ':categoria'  => $item->getCategoria(),
+                ':tipo_clase' => $item->getTipoClase(),
                 ':etiquetado' => $item->getEtiquetado() ? 1 : 0,
                 ':vida_util'  => $item->getVidaUtilMeses(),
                 ':estado'     => $item->getEstado(),
@@ -173,28 +115,7 @@ class HardwareRepository
                 ':id'         => $item->getId(),
             ]);
 
-            // 2. Actualizar tabla hija
-            if ($item instanceof Procesador) {
-                $stmt = $this->db->prepare(
-                    'UPDATE procesadores SET nucleos = :nucleos, frecuencia = :frecuencia
-                     WHERE hardware_id = :id'
-                );
-                $stmt->execute([
-                    ':nucleos'    => $item->getNucleos(),
-                    ':frecuencia' => $item->getFrecuencia(),
-                    ':id'         => $item->getId(),
-                ]);
-            } elseif ($item instanceof TarjetaGrafica) {
-                $stmt = $this->db->prepare(
-                    'UPDATE tarjetas_graficas SET vram = :vram
-                     WHERE hardware_id = :id'
-                );
-                $stmt->execute([
-                    ':vram' => $item->getVram(),
-                    ':id'   => $item->getId(),
-                ]);
-            }
-
+            $this->actualizarHijo($item);
             $this->db->commit();
         } catch (\Exception $e) {
             $this->db->rollBack();
@@ -204,62 +125,133 @@ class HardwareRepository
 
     // ── DELETE ───────────────────────────────────────────────
 
-    /**
-     * Elimina un hardware por ID (CASCADE borra la tabla hija automáticamente).
-     */
     public function delete(int $id): void
     {
         $stmt = $this->db->prepare('DELETE FROM hardware WHERE id = :id');
         $stmt->execute([':id' => $id]);
     }
 
-    // ── HELPERS ──────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════
+    //  HELPERS PRIVADOS
+    // ══════════════════════════════════════════════════════════
+
+    private function buildSelectQuery(): string
+    {
+        return 'SELECT h.*,
+                    p.nucleos, p.frecuencia,
+                    tg.vram,
+                    mr.capacidad AS ram_capacidad, mr.tipo AS ram_tipo, mr.velocidad AS ram_velocidad,
+                    al.capacidad AS alm_capacidad, al.tipo AS alm_tipo, al.velocidad_lectura AS alm_velocidad,
+                    pb.socket, pb.formato,
+                    fp.potencia, fp.certificacion
+                FROM hardware h
+                LEFT JOIN procesadores p ON h.id = p.hardware_id
+                LEFT JOIN tarjetas_graficas tg ON h.id = tg.hardware_id
+                LEFT JOIN memorias_ram mr ON h.id = mr.hardware_id
+                LEFT JOIN almacenamiento al ON h.id = al.hardware_id
+                LEFT JOIN placas_base pb ON h.id = pb.hardware_id
+                LEFT JOIN fuentes_poder fp ON h.id = fp.hardware_id';
+    }
+
+    private function insertarHijo(Hardware $item, int $id): void
+    {
+        if ($item instanceof Procesador) {
+            $stmt = $this->db->prepare('INSERT INTO procesadores (hardware_id, nucleos, frecuencia) VALUES (:id, :nucleos, :frecuencia)');
+            $stmt->execute([':id' => $id, ':nucleos' => $item->getNucleos(), ':frecuencia' => $item->getFrecuencia()]);
+        } elseif ($item instanceof TarjetaGrafica) {
+            $stmt = $this->db->prepare('INSERT INTO tarjetas_graficas (hardware_id, vram) VALUES (:id, :vram)');
+            $stmt->execute([':id' => $id, ':vram' => $item->getVram()]);
+        } elseif ($item instanceof MemoriaRAM) {
+            $stmt = $this->db->prepare('INSERT INTO memorias_ram (hardware_id, capacidad, tipo, velocidad) VALUES (:id, :cap, :tipo, :vel)');
+            $stmt->execute([':id' => $id, ':cap' => $item->getCapacidad(), ':tipo' => $item->getTipo(), ':vel' => $item->getVelocidad()]);
+        } elseif ($item instanceof Almacenamiento) {
+            $stmt = $this->db->prepare('INSERT INTO almacenamiento (hardware_id, capacidad, tipo, velocidad_lectura) VALUES (:id, :cap, :tipo, :vel)');
+            $stmt->execute([':id' => $id, ':cap' => $item->getCapacidad(), ':tipo' => $item->getTipoAlmacenamiento(), ':vel' => $item->getVelocidadLectura()]);
+        } elseif ($item instanceof PlacaBase) {
+            $stmt = $this->db->prepare('INSERT INTO placas_base (hardware_id, socket, formato) VALUES (:id, :socket, :formato)');
+            $stmt->execute([':id' => $id, ':socket' => $item->getSocket(), ':formato' => $item->getFormato()]);
+        } elseif ($item instanceof FuentePoder) {
+            $stmt = $this->db->prepare('INSERT INTO fuentes_poder (hardware_id, potencia, certificacion) VALUES (:id, :pot, :cert)');
+            $stmt->execute([':id' => $id, ':pot' => $item->getPotencia(), ':cert' => $item->getCertificacion()]);
+        }
+    }
+
+    private function actualizarHijo(Hardware $item): void
+    {
+        $id = $item->getId();
+        if ($item instanceof Procesador) {
+            $stmt = $this->db->prepare('UPDATE procesadores SET nucleos = :nucleos, frecuencia = :freq WHERE hardware_id = :id');
+            $stmt->execute([':nucleos' => $item->getNucleos(), ':freq' => $item->getFrecuencia(), ':id' => $id]);
+        } elseif ($item instanceof TarjetaGrafica) {
+            $stmt = $this->db->prepare('UPDATE tarjetas_graficas SET vram = :vram WHERE hardware_id = :id');
+            $stmt->execute([':vram' => $item->getVram(), ':id' => $id]);
+        } elseif ($item instanceof MemoriaRAM) {
+            $stmt = $this->db->prepare('UPDATE memorias_ram SET capacidad = :cap, tipo = :tipo, velocidad = :vel WHERE hardware_id = :id');
+            $stmt->execute([':cap' => $item->getCapacidad(), ':tipo' => $item->getTipo(), ':vel' => $item->getVelocidad(), ':id' => $id]);
+        } elseif ($item instanceof Almacenamiento) {
+            $stmt = $this->db->prepare('UPDATE almacenamiento SET capacidad = :cap, tipo = :tipo, velocidad_lectura = :vel WHERE hardware_id = :id');
+            $stmt->execute([':cap' => $item->getCapacidad(), ':tipo' => $item->getTipoAlmacenamiento(), ':vel' => $item->getVelocidadLectura(), ':id' => $id]);
+        } elseif ($item instanceof PlacaBase) {
+            $stmt = $this->db->prepare('UPDATE placas_base SET socket = :socket, formato = :fmt WHERE hardware_id = :id');
+            $stmt->execute([':socket' => $item->getSocket(), ':fmt' => $item->getFormato(), ':id' => $id]);
+        } elseif ($item instanceof FuentePoder) {
+            $stmt = $this->db->prepare('UPDATE fuentes_poder SET potencia = :pot, certificacion = :cert WHERE hardware_id = :id');
+            $stmt->execute([':pot' => $item->getPotencia(), ':cert' => $item->getCertificacion(), ':id' => $id]);
+        }
+    }
 
     /**
-     * Convierte filas de la BD en objetos Procesador o TarjetaGrafica.
-     *
-     * @param array<int, array<string, mixed>> $rows
-     * @return Hardware[]
+     * Convierte filas en objetos según tipo_clase.
      */
     private function hydrate(array $rows): array
     {
         $items = [];
+        foreach ($rows as $r) {
+            $base = [
+                'id' => (int)$r['id'], 'marca' => $r['marca'], 'modelo' => $r['modelo'],
+                'precio' => (float)$r['precio'], 'stock' => (int)$r['stock'], 'categoria' => $r['categoria'],
+                'etiquetado' => (bool)$r['etiquetado'], 'vida_util_meses' => (int)$r['vida_util_meses'],
+                'estado' => $r['estado'], 'usuario_id' => (int)$r['usuario_id'],
+            ];
 
-        foreach ($rows as $row) {
-            if ($row['nucleos'] !== null) {
-                // Es un Procesador
-                $items[] = new Procesador(
-                    id: (int) $row['id'],
-                    marca: $row['marca'],
-                    modelo: $row['modelo'],
-                    precio: (float) $row['precio'],
-                    stock: (int) $row['stock'],
-                    categoria: $row['categoria'],
-                    nucleos: (int) $row['nucleos'],
-                    frecuencia: $row['frecuencia'],
-                    etiquetado: (bool) $row['etiquetado'],
-                    vida_util_meses: (int) $row['vida_util_meses'],
-                    estado: $row['estado'],
-                    usuario_id: (int) $row['usuario_id']
-                );
-            } elseif ($row['vram'] !== null) {
-                // Es una Tarjeta Gráfica
-                $items[] = new TarjetaGrafica(
-                    id: (int) $row['id'],
-                    marca: $row['marca'],
-                    modelo: $row['modelo'],
-                    precio: (float) $row['precio'],
-                    stock: (int) $row['stock'],
-                    categoria: $row['categoria'],
-                    vram: $row['vram'],
-                    etiquetado: (bool) $row['etiquetado'],
-                    vida_util_meses: (int) $row['vida_util_meses'],
-                    estado: $row['estado'],
-                    usuario_id: (int) $row['usuario_id']
-                );
+            $item = match($r['tipo_clase']) {
+                'Procesador' => new Procesador(
+                    $base['id'], $base['marca'], $base['modelo'], $base['precio'], $base['stock'], $base['categoria'],
+                    (int)$r['nucleos'], $r['frecuencia'],
+                    $base['etiquetado'], $base['vida_util_meses'], $base['estado'], $base['usuario_id']
+                ),
+                'TarjetaGrafica' => new TarjetaGrafica(
+                    $base['id'], $base['marca'], $base['modelo'], $base['precio'], $base['stock'], $base['categoria'],
+                    $r['vram'],
+                    $base['etiquetado'], $base['vida_util_meses'], $base['estado'], $base['usuario_id']
+                ),
+                'MemoriaRAM' => new MemoriaRAM(
+                    $base['id'], $base['marca'], $base['modelo'], $base['precio'], $base['stock'], $base['categoria'],
+                    $r['ram_capacidad'], $r['ram_tipo'], $r['ram_velocidad'],
+                    $base['etiquetado'], $base['vida_util_meses'], $base['estado'], $base['usuario_id']
+                ),
+                'Almacenamiento' => new Almacenamiento(
+                    $base['id'], $base['marca'], $base['modelo'], $base['precio'], $base['stock'], $base['categoria'],
+                    $r['alm_capacidad'], $r['alm_tipo'], $r['alm_velocidad'],
+                    $base['etiquetado'], $base['vida_util_meses'], $base['estado'], $base['usuario_id']
+                ),
+                'PlacaBase' => new PlacaBase(
+                    $base['id'], $base['marca'], $base['modelo'], $base['precio'], $base['stock'], $base['categoria'],
+                    $r['socket'], $r['formato'],
+                    $base['etiquetado'], $base['vida_util_meses'], $base['estado'], $base['usuario_id']
+                ),
+                'FuentePoder' => new FuentePoder(
+                    $base['id'], $base['marca'], $base['modelo'], $base['precio'], $base['stock'], $base['categoria'],
+                    $r['potencia'], $r['certificacion'],
+                    $base['etiquetado'], $base['vida_util_meses'], $base['estado'], $base['usuario_id']
+                ),
+                default => null,
+            };
+
+            if ($item !== null) {
+                $items[] = $item;
             }
         }
-
         return $items;
     }
 }
