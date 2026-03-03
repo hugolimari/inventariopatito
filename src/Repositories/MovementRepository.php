@@ -6,9 +6,6 @@ namespace App\Repositories;
 
 use PDO;
 
-/**
- * Repositorio encargado de registrar movimientos de hardware (entradas y salidas).
- */
 class MovementRepository
 {
     private PDO $pdo;
@@ -18,33 +15,15 @@ class MovementRepository
         $this->pdo = $pdo;
     }
 
-    /**
-     * Registra una salida de componentes.
-     *
-     * @param int $userId id del usuario que realiza la operación (almacenero o técnico)
-     * @param int $technicianId id del técnico que usa los componentes
-     * @param array $items arreglo de elementos con keys id_hardware y cantidad
-     * @param string|null $observacion texto opcional
-     * @return int id del movimiento creado
-     * @throws \Exception si no hay stock suficiente o falla la transacción
-     */
     public function registerSalida(int $userId, ?int $technicianId, array $items, ?string $observacion = null): int
     {
         $this->pdo->beginTransaction();
         try {
-            if ($technicianId === null) {
-                $stmt = $this->pdo->prepare(
-                    "INSERT INTO movimientos (tipo, id_usuario, id_tecnico, observacion) 
-                     VALUES ('SALIDA', :u, NULL, :o)"
-                );
-                $stmt->execute(['u' => $userId, 'o' => $observacion]);
-            } else {
-                $stmt = $this->pdo->prepare(
-                    "INSERT INTO movimientos (tipo, id_usuario, id_tecnico, observacion) 
-                     VALUES ('SALIDA', :u, :t, :o)"
-                );
-                $stmt->execute(['u' => $userId, 't' => $technicianId, 'o' => $observacion]);
-            }
+            $stmt = $this->pdo->prepare(
+                "INSERT INTO movimientos (tipo, id_usuario, observacion) 
+                 VALUES ('SALIDA', :u, :o)"
+            );
+            $stmt->execute(['u' => $userId, 'o' => $observacion]);
             $movId = (int) $this->pdo->lastInsertId();
 
             $updateStmt = $this->pdo->prepare(
@@ -94,10 +73,11 @@ class MovementRepository
         $this->pdo->beginTransaction();
         try {
             $stmt = $this->pdo->prepare(
-                "INSERT INTO movimientos (tipo, id_usuario, observacion) 
-                 VALUES ('ENTRADA', :u, :o)"
+                "INSERT INTO movimientos (id_usuario, tipo, observacion) 
+                 VALUES (:u, 'ENTRADA', :o)"
             );
             $stmt->execute(['u' => $userId, 'o' => $observacion]);
+
             $movId = (int) $this->pdo->lastInsertId();
 
             $updateStmt = $this->pdo->prepare(
@@ -140,13 +120,15 @@ class MovementRepository
      */
     public function registerRMA(int $userId, array $items, ?string $observacion = null): int
     {
-        $this->pdo->beginTransaction();
         try {
+            $this->pdo->beginTransaction();
+
             $stmt = $this->pdo->prepare(
-                "INSERT INTO movimientos (tipo, id_usuario, observacion) 
-                 VALUES ('RMA', :u, :o)"
+                "INSERT INTO movimientos (id_usuario, tipo, observacion) 
+                 VALUES (:u, 'RMA', :o)"
             );
             $stmt->execute(['u' => $userId, 'o' => $observacion]);
+
             $movId = (int) $this->pdo->lastInsertId();
 
             $updateStmt = $this->pdo->prepare(

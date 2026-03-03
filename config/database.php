@@ -2,9 +2,6 @@
 declare(strict_types = 1)
 ;
 
-/**
- * Configuración de base de datos
- */
 class DatabaseConfig
 {
     public function __construct(private

@@ -3,14 +3,8 @@ declare(strict_types=1);
 
 namespace App\Utils;
 
-/**
- * Funciones de utilidad del sistema
- */
 class Helpers {
     
-    /**
-     * Formatea nombre completo
-     */
     public static function formatearNombre(
         string $nombre,
         string $apellidoPaterno,
@@ -23,18 +17,12 @@ class Helpers {
         );
     }
     
-    /**
-     * Genera iniciales
-     */
     public static function generarIniciales(string $nombreCompleto): string {
         $palabras = explode(' ', $nombreCompleto);
         $iniciales = array_map(fn($p) => mb_substr($p, 0, 1), $palabras);
         return mb_strtoupper(implode('', $iniciales), 'UTF-8');
     }
     
-    /**
-     * Formatea teléfono
-     */
     public static function formatearTelefono(?string $telefono): string {
         if ($telefono === null) {
             return 'N/A';
@@ -54,11 +42,11 @@ class Helpers {
     }
     
     /**
-     * Trunca texto
+     * Trunca texto a una longitud específica
      */
-    public static function truncar(
+    public static function truncarTexto(
         string $texto,
-        int $longitud = 100,
+        int $longitud = 50,
         string $sufijo = '...'
     ): string {
         if (mb_strlen($texto) <= $longitud) {
@@ -72,6 +60,6 @@ class Helpers {
      * Sanitiza texto para HTML
      */
     public static function sanitizar(string $texto): string {
-        return htmlspecialchars(trim($texto), ENT_QUOTES, 'UTF-8');
+        return htmlspecialchars($texto, ENT_QUOTES, 'UTF-8');
     }
 }

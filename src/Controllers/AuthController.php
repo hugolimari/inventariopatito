@@ -136,6 +136,12 @@ class AuthController extends BaseController
         ]);
 
         if (!empty($errors)) {
+            // if request is AJAX, return errors as JSON
+            if ($this->isAjax()) {
+                $this->json(['success' => false, 'errors' => $errors]);
+                return;
+            }
+
             $roles = $this->container->get('RoleRepository')->findAll();
             $roles = array_filter($roles, fn($r) => $r['id_rol'] !== 1);
             $this->render('auth/register', [
@@ -149,9 +155,17 @@ class AuthController extends BaseController
         try {
             $hash = password_hash($data['password'], PASSWORD_DEFAULT);
             $this->authRepo->createUser($data['username'], $hash, (int) $data['role']);
+            if ($this->isAjax()) {
+                $this->json(['success' => true]);
+                return;
+            }
             $this->setFlash('success', 'Usuario creado correctamente');
             $this->redirect('/auth/register.php');
         } catch (\Exception $e) {
+            if ($this->isAjax()) {
+                $this->json(['success' => false, 'error' => 'Error al crear usuario: ' . $e->getMessage()]);
+                return;
+            }
             // guardar mensaje de error y volver a formulario
             $this->setFlash('error', 'Error al crear usuario: ' . $e->getMessage());
             $this->redirect('/auth/register.php');

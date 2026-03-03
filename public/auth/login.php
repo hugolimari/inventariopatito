@@ -1,7 +1,6 @@
 <?php
 declare(strict_types=1);
 
-// front controller para autenticación
 require_once __DIR__ . '/../../config/constants.php';
 require_once __DIR__ . '/../../vendor/autoload.php';
 

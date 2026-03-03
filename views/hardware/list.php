@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * View for displaying hardware list.
  * Variables expected:
@@ -322,20 +322,21 @@ $flashError = $this->getFlash('error') ?? null;
                         <td id="stock-<?= h($item['id_hardware']) ?>">
                             <?= h($item['stock']) ?>
                             <?php if ($item['stock'] <= 5): ?>
-                                <span class="stock-badge stock-warn">¡Crítico!</span>
+                                <span class="stock-badge stock-warn">¡Crítico!!</span>
                             <?php endif; ?>
                         </td>
                         <td>
                             <?php if (($currentUser['role'] ?? 0) === 1): ?>
-                                <a class="btn btn-danger" href="eliminar.php?id=<?= h($item['id_hardware']) ?>" onclick="return confirm('¿Está seguro de eliminar este hardware?');">Eliminar</a>
+                                <a class="btn btn-danger" href="eliminar.php?id=<?= h($item['id_hardware']) ?>" onclick="return confirm('¿Estás seguro de eliminar este hardware?');">Eliminar</a>
                             <?php endif; ?>
                             <?php if (($currentUser['role'] ?? 0) === 3): ?>
                                 <a class="btn btn-secondary btn-salida" href="#" data-id="<?= h($item['id_hardware']) ?>">Salida</a>
+                                <a class="btn btn-warning btn-rma-modal" href="#" data-id="<?= h($item['id_hardware']) ?>">RMA</a>
                             <?php endif; ?>
                             <?php if (($currentUser['role'] ?? 0) === 1): ?>
                                 <a class="btn btn-primary btn-edit-modal" href="#" data-id="<?= h($item['id_hardware']) ?>" data-marca-id="<?= h($item['id_marca'] ?? '') ?>" data-modelo="<?= h($item['modelo']) ?>" data-precio="<?= h($item['precio']) ?>" data-stock="<?= h($item['stock']) ?>" data-categoria="<?= h($item['id_categoria']) ?>" data-role="1">Editar</a>
-                                <a class="btn btn-success" href="entrada.php?id=<?= h($item['id_hardware']) ?>">Entrada</a>
-                                <a class="btn btn-warning" href="rma.php?id=<?= h($item['id_hardware']) ?>">RMA</a>
+                                <a class="btn btn-success btn-entrada-modal" href="#" data-id="<?= h($item['id_hardware']) ?>">Entrada</a>
+                                <a class="btn btn-warning btn-rma-modal" href="#" data-id="<?= h($item['id_hardware']) ?>">RMA</a>
                             <?php elseif (($currentUser['role'] ?? 0) === 2): ?>
                                 <a class="btn btn-primary btn-edit-modal" href="#" data-id="<?= h($item['id_hardware']) ?>" data-marca-id="<?= h($item['id_marca'] ?? '') ?>" data-modelo="<?= h($item['modelo']) ?>" data-precio="<?= h($item['precio']) ?>" data-stock="<?= h($item['stock']) ?>" data-categoria="<?= h($item['id_categoria']) ?>" data-role="2">Editar</a>
                                 <a class="btn btn-success btn-entrada-modal" href="#" data-id="<?= h($item['id_hardware']) ?>">Entrada</a>
@@ -403,7 +404,7 @@ $flashError = $this->getFlash('error') ?? null;
                 </div>
                 <div class="modal-errors" id="editErrors"></div>
                 <form id="editHardwareForm">
-                    <input type="hidden" id="editHardwareId">
+                    <input type="hidden" id="editHardwareId" name="id">
                     <div class="modal-input-group">
                         <label for="editCategoria">Categoría <span style="color:#dc3545">*</span></label>
                         <select id="editCategoria" name="id_categoria" required>
@@ -491,6 +492,31 @@ $flashError = $this->getFlash('error') ?? null;
                 <div class="modal-actions">
                     <button type="button" class="modal-btn modal-btn-cancel" id="entradaCancel">Cancelar</button>
                     <button type="button" class="modal-btn modal-btn-confirm" id="entradaConfirm">Confirmar entrada</button>
+                </div>
+            </div>
+        </div>
+        <!-- Modal de RMA -->
+        <div class="modal-overlay" id="rmaModal">
+            <div class="modal-box">
+                <div class="modal-header">
+                    <div class="modal-icon">🔄</div>
+                    <h2 class="modal-title">Registrar RMA</h2>
+                </div>
+                <div class="modal-body">
+                    Se registrará el RMA del componente <strong id="rmaHardwareInfo"></strong>
+                </div>
+                <div class="modal-errors" id="rmaErrors"></div>
+                <div class="modal-input-group">
+                    <label for="rmaCantidad">Cantidad a devolver <span style="color:#dc3545">*</span></label>
+                    <input type="number" id="rmaCantidad" min="1" required placeholder="Ej: 3">
+                </div>
+                <div class="modal-input-group">
+                    <label for="rmaObservacion">Motivo del RMA <span style="color:#dc3545">*</span></label>
+                    <input type="text" id="rmaObservacion" placeholder="Ej: Componente defectuoso, garantía vigente">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="modal-btn modal-btn-cancel" id="rmaCancel">Cancelar</button>
+                    <button type="button" class="modal-btn modal-btn-confirm" id="rmaConfirm">Confirmar RMA</button>
                 </div>
             </div>
         </div>
@@ -691,24 +717,35 @@ $flashError = $this->getFlash('error') ?? null;
                     headers: { 'X-Requested-With': 'XMLHttpRequest' },
                     body: formData
                 })
-                .then(r => r.json())
-                .then(json => {
-                    if (json.success) {
-                        // Actualizar stock en la tabla
-                        if (json.stock !== undefined) {
-                            const stockCell = document.getElementById(`stock-${currentEntradaHardwareId}`);
-                            let newStock = json.stock;
-                            let html = newStock;
-                            if (newStock <= 5) {
-                                html += ' <span class="stock-badge stock-warn">¡Crítico!</span>';
+                .then(r => {
+                    if (!r.ok) {
+                        throw new Error(`HTTP ${r.status}: ${r.statusText}`);
+                    }
+                    return r.text();
+                })
+                .then(text => {
+                    try {
+                        const json = JSON.parse(text);
+                        if (json.success) {
+                            // Actualizar stock en la tabla
+                            if (json.stock !== undefined) {
+                                const stockCell = document.getElementById(`stock-${currentEntradaHardwareId}`);
+                                let newStock = json.stock;
+                                let html = newStock;
+                                if (newStock <= 5) {
+                                    html += ' <span class="stock-badge stock-warn">¡Crítico!!</span>';
+                                }
+                                stockCell.innerHTML = html;
                             }
-                            stockCell.innerHTML = html;
+                            showFlash('✓ Entrada registrada exitosamente', 'success');
+                            closeEntradaModal();
+                        } else {
+                            const errMsg = json.error || (json.errors ? JSON.stringify(json.errors) : 'Error desconocido');
+                            entradaErrors.textContent = errMsg;
+                            entradaErrors.classList.add('show');
                         }
-                        showFlash('✓ Entrada registrada exitosamente', 'success');
-                        closeEntradaModal();
-                    } else {
-                        const errMsg = json.error || (json.errors ? JSON.stringify(json.errors) : 'Error desconocido');
-                        entradaErrors.textContent = errMsg;
+                    } catch (e) {
+                        entradaErrors.textContent = 'Error de servidor: respuesta inválida. ' + text.substring(0, 100);
                         entradaErrors.classList.add('show');
                     }
                 })
@@ -728,6 +765,130 @@ $flashError = $this->getFlash('error') ?? null;
             });
             entradaObservacion.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') entradaConfirm.click();
+            });
+
+            // ========== MODAL RMA ==========
+            const rmaModal = document.getElementById('rmaModal');
+            const rmaCancel = document.getElementById('rmaCancel');
+            const rmaConfirm = document.getElementById('rmaConfirm');
+            const rmaErrors = document.getElementById('rmaErrors');
+            const rmaCantidad = document.getElementById('rmaCantidad');
+            const rmaObservacion = document.getElementById('rmaObservacion');
+            const rmaHardwareInfo = document.getElementById('rmaHardwareInfo');
+            
+            let currentRmaHardwareId = null;
+            let currentRmaHardwareName = null;
+
+            // Abrir modal al hacer clic en "RMA"
+            document.querySelectorAll('a.btn-rma-modal').forEach(function(link) {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    currentRmaHardwareId = this.dataset.id;
+                    
+                    // Get hardware info from the row
+                    const row = this.closest('tr');
+                    const marca = row.querySelector('td:nth-child(2)').textContent.trim();
+                    const modelo = row.querySelector('td:nth-child(3)').textContent.trim();
+                    currentRmaHardwareName = marca + ' ' + modelo;
+                    
+                    // Show modal
+                    rmaHardwareInfo.textContent = currentRmaHardwareName;
+                    rmaErrors.classList.remove('show');
+                    rmaErrors.textContent = '';
+                    rmaCantidad.value = '';
+                    rmaObservacion.value = '';
+                    rmaCantidad.focus();
+                    rmaModal.classList.add('active');
+                });
+            });
+
+            // Cerrar modal RMA
+            function closeRmaModal() {
+                rmaModal.classList.remove('active');
+                currentRmaHardwareId = null;
+            }
+
+            rmaCancel.addEventListener('click', closeRmaModal);
+            rmaModal.addEventListener('click', function(e) {
+                if (e.target === rmaModal) closeRmaModal();
+            });
+
+            // Confirmar RMA
+            rmaConfirm.addEventListener('click', function() {
+                const cantidad = rmaCantidad.value.trim();
+                const observacion = rmaObservacion.value.trim();
+
+                // Validar cantidad
+                if (!cantidad || parseInt(cantidad) < 1) {
+                    rmaErrors.textContent = 'Ingresa una cantidad válida (mínimo 1)';
+                    rmaErrors.classList.add('show');
+                    return;
+                }
+                if (!observacion) {
+                    rmaErrors.textContent = 'Motivo del RMA obligatorio';
+                    rmaErrors.classList.add('show');
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('cantidad', cantidad);
+                formData.append('observacion', observacion);
+
+                rmaConfirm.disabled = true;
+                rmaConfirm.style.opacity = '0.6';
+
+                fetch(`/hardware/rma.php?id=${currentRmaHardwareId}`, {
+                    method: 'POST',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    body: formData
+                })
+                .then(r => {
+                    if (!r.ok) {
+                        throw new Error(`HTTP ${r.status}: ${r.statusText}`);
+                    }
+                    return r.text();
+                })
+                .then(text => {
+                    try {
+                        const json = JSON.parse(text);
+                        if (json.success) {
+                            if (json.stock !== undefined) {
+                                const stockCell = document.getElementById(`stock-${currentRmaHardwareId}`);
+                                let newStock = json.stock;
+                                let html = newStock;
+                                if (newStock <= 5) {
+                                    html += ' <span class="stock-badge stock-warn">¡Crítico!</span>';
+                                }
+                                stockCell.innerHTML = html;
+                            }
+                            showFlash('✓ RMA registrado exitosamente', 'success');
+                            closeRmaModal();
+                        } else {
+                            const errMsg = json.error || (json.errors ? JSON.stringify(json.errors) : 'Error desconocido');
+                            rmaErrors.textContent = errMsg;
+                            rmaErrors.classList.add('show');
+                        }
+                    } catch (e) {
+                        rmaErrors.textContent = 'Error de servidor: respuesta inválida. ' + text.substring(0, 100);
+                        rmaErrors.classList.add('show');
+                    }
+                })
+                .catch(err => {
+                    rmaErrors.textContent = 'Error de conexión: ' + err.message;
+                    rmaErrors.classList.add('show');
+                })
+                .finally(() => {
+                    rmaConfirm.disabled = false;
+                    rmaConfirm.style.opacity = '1';
+                });
+            });
+
+            // permitir Enter para confirmar RMA
+            rmaCantidad.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') rmaConfirm.click();
+            });
+            rmaObservacion.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') rmaConfirm.click();
             });
 
             // Confirmar salida
@@ -764,7 +925,7 @@ $flashError = $this->getFlash('error') ?? null;
                             let newStock = json.stock;
                             let html = newStock;
                             if (newStock <= 5) {
-                                html += ' <span class="stock-badge stock-warn">¡Crítico!</span>';
+                                html += ' <span class="stock-badge stock-warn">¡Crítico!!</span>';
                             }
                             stockCell.innerHTML = html;
                         }
@@ -968,6 +1129,12 @@ $flashError = $this->getFlash('error') ?? null;
 
                 const id = document.getElementById('editHardwareId').value;
                 const formData = new FormData(editHardwareForm);
+                
+                // Incluir precio y stock incluso si están deshabilitados
+                const priceVal = document.getElementById('editPrecio').value.trim();
+                const stockVal = document.getElementById('editStock').value.trim();
+                formData.set('precio', priceVal);
+                formData.set('stock', stockVal);
 
                 fetch(`/hardware/editar.php?id=${id}`, {
                     method: 'POST',

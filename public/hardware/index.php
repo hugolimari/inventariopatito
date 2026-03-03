@@ -1,5 +1,4 @@
 <?php
-// Front controller for hardware listing
 require_once __DIR__ . '/../../config/constants.php';
 require_once __DIR__ . '/../../vendor/autoload.php';
 

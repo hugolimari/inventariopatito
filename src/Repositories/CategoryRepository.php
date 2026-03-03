@@ -5,9 +5,6 @@ namespace App\Repositories;
 
 use PDO;
 
-/**
- * Repositorio para gestionar categorías desde la tabla `categorias`.
- */
 class CategoryRepository
 {
     private PDO $pdo;
@@ -17,10 +14,6 @@ class CategoryRepository
         $this->pdo = $pdo;
     }
 
-    /**
-     * Obtiene todas las categorías.
-     * @return array Array de ['id_categoria' => int, 'nombre' => string]
-     */
     public function findAll(): array
     {
         $stmt = $this->pdo->query("SELECT id_categoria, nombre FROM categorias ORDER BY nombre");

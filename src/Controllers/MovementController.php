@@ -132,15 +132,19 @@ class MovementController extends BaseController
         ]);
 
         if (!empty($errors)) {
-            $hardwareRepo = $this->container->get('HardwareRepository');
-            $hardware = $hardwareRepo->findById($id);
-            $this->render('hardware/entrada', [
-                'id' => $id,
-                'hardware' => $hardware,
-                'data' => ['cantidad' => $cantidad],
-                'errors' => $errors,
-                'currentUser' => $current
-            ]);
+            if ($this->isAjax()) {
+                $this->json(['success' => false, 'errors' => $errors], 422);
+            } else {
+                $hardwareRepo = $this->container->get('HardwareRepository');
+                $hardware = $hardwareRepo->findById($id);
+                $this->render('hardware/entrada', [
+                    'id' => $id,
+                    'hardware' => $hardware,
+                    'data' => ['cantidad' => $cantidad],
+                    'errors' => $errors,
+                    'currentUser' => $current
+                ]);
+            }
             return;
         }
 
@@ -151,9 +155,20 @@ class MovementController extends BaseController
                 $observacion
             );
 
+            if ($this->isAjax()) {
+                // fetch new stock value
+                $hardwareRepo = $this->container->get('HardwareRepository');
+                $item = $hardwareRepo->findById($id);
+                $newStock = $item['stock'] ?? null;
+                $this->json(['success' => true, 'message' => 'Entrada registrada exitosamente', 'stock' => $newStock]);
+            }
+
             $this->setFlash('success', 'Entrada registrada exitosamente');
             $this->redirect('/hardware/index.php');
         } catch (\Exception $e) {
+            if ($this->isAjax()) {
+                $this->json(['success' => false, 'error' => $e->getMessage()], 500);
+            }
             $this->setFlash('error', $e->getMessage());
             $this->redirect("/hardware/entrada.php?id={$id}");
         }
@@ -165,8 +180,8 @@ class MovementController extends BaseController
     public function rma(int $id): void
     {
         $current = $this->getCurrentUser();
-        // solo almacenero (rol 2) y admin (rol 1) pueden registrar RMA
-        if (!in_array(($current['role'] ?? 0), [1, 2], true)) {
+        // admin (rol 1), almacenero (rol 2) y técnico (rol 3) pueden registrar RMA
+        if (!in_array(($current['role'] ?? 0), [1, 2, 3], true)) {
             $this->error('No autorizado', 403);
         }
 
@@ -199,6 +214,11 @@ class MovementController extends BaseController
         ]);
 
         if (!empty($errors)) {
+            if ($this->isAjax()) {
+                $this->json(['success' => false, 'errors' => $errors], 422);
+                return;
+            }
+
             $hardwareRepo = $this->container->get('HardwareRepository');
             $hardware = $hardwareRepo->findById($id);
             $this->render('hardware/rma', [
@@ -218,9 +238,23 @@ class MovementController extends BaseController
                 $observacion
             );
 
+            if ($this->isAjax()) {
+                // fetch new stock value
+                $hardwareRepo = $this->container->get('HardwareRepository');
+                $item = $hardwareRepo->findById($id);
+                $newStock = $item['stock'] ?? null;
+                $this->json(['success' => true, 'message' => 'RMA registrado exitosamente', 'stock' => $newStock]);
+                return;
+            }
+
             $this->setFlash('success', 'RMA registrado exitosamente');
             $this->redirect('/hardware/index.php');
         } catch (\Exception $e) {
+            if ($this->isAjax()) {
+                $this->json(['success' => false, 'error' => $e->getMessage()], 500);
+                return;
+            }
+
             $this->setFlash('error', $e->getMessage());
             $this->redirect("/hardware/rma.php?id={$id}");
         }

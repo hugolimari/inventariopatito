@@ -48,11 +48,16 @@ class UserManagementController extends BaseController
             $current['role_name'] = $roleInfo['nombre'] ?? null;
         }
 
+        // load available roles for registration modal (exclude admin)
+        $roles = $roleRepo->findAll();
+        $roles = array_filter($roles, fn($r) => $r['id_rol'] !== 1);
+
         $this->render('users/list', [
             'users' => $users,
             'search' => $search,
             'title' => 'Gestión de Usuarios',
-            'currentUser' => $current
+            'currentUser' => $current,
+            'roles' => $roles
         ]);
     }
 
