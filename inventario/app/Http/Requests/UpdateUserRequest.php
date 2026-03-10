@@ -22,6 +22,7 @@ class UpdateUserRequest extends FormRequest
             'password'        => 'sometimes|nullable|string|min:6',
             'rol'             => 'sometimes|required|in:Admin,Tecnico',
             'turno'           => 'nullable|string|max:50',
+            'activo'          => 'sometimes|boolean',
         ];
     }
 }
