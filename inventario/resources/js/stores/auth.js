@@ -3,7 +3,7 @@ import { ref, computed } from 'vue'
 import client from '../api/client.js'
 
 export const useAuthStore = defineStore('auth', () => {
-    const user = ref(null)
+    const user = ref(JSON.parse(localStorage.getItem('auth_user')) || null)
     const token = ref(localStorage.getItem('auth_token') || null)
     const isAuthenticated = computed(() => !!token.value)
 
@@ -13,6 +13,7 @@ export const useAuthStore = defineStore('auth', () => {
             token.value = response.data.token
             user.value = response.data.user
             localStorage.setItem('auth_token', token.value)
+            localStorage.setItem('auth_user', JSON.stringify(response.data.user))
             return { success: true, user: response.data.user }
         } catch (error) {
             return { success: false, error: error.response?.data?.message || 'Error al iniciar sesión' }
@@ -23,6 +24,7 @@ export const useAuthStore = defineStore('auth', () => {
         token.value = null
         user.value = null
         localStorage.removeItem('auth_token')
+        localStorage.removeItem('auth_user')
     }
 
     const isAdmin = computed(() => user.value?.rol === 'Admin')

@@ -11,8 +11,21 @@
           </div>
         </div>
 
-        <!-- User info and logout -->
+        <!-- Weather + User info + logout -->
         <div class="flex items-center gap-5">
+          <!-- Weather Widget -->
+          <div v-if="weather" class="flex items-center gap-2.5 bg-gray-800/60 border border-gray-700/50 rounded-xl px-3.5 py-2 mr-1">
+            <img :src="`https://openweathermap.org/img/wn/${weather.icon}@2x.png`" :alt="weather.desc" class="w-9 h-9 -my-1" />
+            <div class="leading-tight">
+              <p class="text-sm font-bold text-gray-100">{{ weather.temp }}°C</p>
+              <p class="text-[10px] text-gray-500 capitalize">{{ weather.desc }}</p>
+            </div>
+            <div class="border-l border-gray-700/50 pl-2.5 ml-0.5 leading-tight">
+              <p class="text-[10px] text-gray-500">La Paz</p>
+              <p class="text-[10px] text-gray-600">💧{{ weather.humidity }}%</p>
+            </div>
+          </div>
+
           <div class="flex items-center gap-3">
             <div class="text-right">
               <p class="text-sm font-semibold text-gray-200">{{ auth.user?.nombre_completo || 'Usuario' }}</p>
@@ -48,11 +61,40 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth.js'
 
 const router = useRouter()
 const auth = useAuthStore()
+
+const weather = ref(null)
+
+const fetchWeather = async () => {
+  try {
+    const API_KEY = '5f6a448206c824b01a95263e2cfd8788'
+    const res = await fetch(
+      `https://api.openweathermap.org/data/2.5/weather?q=La Paz,BO&units=metric&lang=es&appid=${API_KEY}`
+    )
+    const data = await res.json()
+    if (data.cod === 200) {
+      weather.value = {
+        temp: Math.round(data.main.temp),
+        desc: data.weather[0].description,
+        icon: data.weather[0].icon,
+        humidity: data.main.humidity,
+      }
+    }
+  } catch (e) {
+    // silently fail
+  }
+}
+
+onMounted(() => {
+  fetchWeather()
+  // Refresh every 10 minutes
+  setInterval(fetchWeather, 600000)
+})
 
 const handleLogout = () => {
   auth.logout()

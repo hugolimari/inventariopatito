@@ -11,7 +11,7 @@
       <div class="flex-1 pl-64 pt-[73px] p-8">
         <!-- Header -->
         <div class="mb-8">
-          <h1 class="text-3xl font-bold text-gray-100 mb-1">👋 Bienvenido al Dashboard</h1>
+          <h1 class="text-3xl font-bold text-gray-100 mb-1">Bienvenido al Dashboard</h1>
           <p class="text-gray-500">Resumen general del inventario</p>
         </div>
 
