@@ -154,6 +154,8 @@ const router = useRouter()
 const inventario = useInventarioStore()
 const auth = useAuthStore()
 
+const route = useRouter().currentRoute.value
+
 onMounted(async () => {
   if (!inventario.catalogo || inventario.catalogo.length === 0) {
     await inventario.fetchCatalogo()
@@ -280,4 +282,5 @@ const handleSubmit = async () => {
 
   loading.value = false
 }
+
 </script>

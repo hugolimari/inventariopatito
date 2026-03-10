@@ -194,6 +194,9 @@ const filtros = ref({
 
 onMounted(async () => {
   await inventario.fetchActivosFijos()
+  if (!inventario.catalogo || inventario.catalogo.length === 0) {
+    await inventario.fetchCatalogo()
+  }
 })
 
 const activosFiltrados = computed(() => {
