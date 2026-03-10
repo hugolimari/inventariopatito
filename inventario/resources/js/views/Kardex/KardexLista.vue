@@ -9,12 +9,20 @@
             <h1 class="text-2xl font-bold text-gray-100">Kardex - Movimientos</h1>
             <p class="text-gray-500 mt-1 text-sm">Historial de todas las transacciones</p>
           </div>
-          <router-link
-            to="/movimientos/crear"
-            class="bg-violet-600 hover:bg-violet-500 text-white font-medium py-2 px-5 rounded-xl text-sm transition shadow-lg shadow-violet-500/20"
-          >
-            + Nuevo Movimiento
-          </router-link>
+          <div class="flex gap-3">
+            <button
+              @click="exportarPDF"
+              class="bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium py-2 px-4 rounded-xl text-sm border border-gray-700 transition flex items-center gap-2"
+            >
+              📄 Exportar PDF
+            </button>
+            <router-link
+              to="/movimientos/crear"
+              class="bg-violet-600 hover:bg-violet-500 text-white font-medium py-2 px-5 rounded-xl text-sm transition shadow-lg shadow-violet-500/20"
+            >
+              + Nuevo Movimiento
+            </router-link>
+          </div>
         </div>
 
         <!-- Filtros -->
@@ -98,6 +106,8 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { jsPDF } from 'jspdf'
+import autoTable from 'jspdf-autotable'
 import { useInventarioStore } from '../../stores/inventario.js'
 import Navbar from '../../components/Navbar.vue'
 import Sidebar from '../../components/Sidebar.vue'
@@ -141,5 +151,43 @@ const getTipoClass = (tipo) => {
     'Venta': 'bg-amber-500/15 text-amber-400 border border-amber-500/30',
   }
   return classes[tipo] || 'bg-gray-500/15 text-gray-400 border border-gray-500/30'
+}
+
+const exportarPDF = () => {
+  const doc = new jsPDF()
+  
+  doc.setFontSize(18)
+  doc.text('Kardex de Movimientos - Inventario', 14, 22)
+  
+  doc.setFontSize(11)
+  doc.setTextColor(100)
+  doc.text(`Fecha de exportación: ${new Date().toLocaleDateString()}`, 14, 30)
+  
+  const tableData = movimientosFiltrados.value.map(mov => {
+    let componente = mov.activo_fijo 
+      ? mov.activo_fijo.numero_serie 
+      : (mov.lote_consumible ? mov.lote_consumible.catalogo?.modelo : '')
+      
+    return [
+      formatDate(mov.created_at),
+      mov.tipo_movimiento,
+      mov.operador?.nombre_completo || 'N/A',
+      componente,
+      mov.cantidad_afectada,
+      mov.observaciones || ''
+    ]
+  })
+
+  autoTable(doc, {
+    startY: 36,
+    head: [['Fecha', 'Tipo', 'Usuario', 'Componente', 'Cantidad', 'Observaciones']],
+    body: tableData,
+    theme: 'grid',
+    headStyles: { fillColor: [139, 92, 246] }, // violet-500 para combinar con el Kardex
+    styles: { fontSize: 8 },
+    alternateRowStyles: { fillColor: [245, 247, 250] } // Light gray contrast
+  })
+
+  doc.save('kardex_movimientos_inventario.pdf')
 }
 </script>
