@@ -10,6 +10,21 @@
             <h1 class="text-2xl font-bold text-gray-100 mb-1">Nuevo Activo Fijo</h1>
             <p class="text-gray-500 mb-5 text-sm">Registra un nuevo componente serializado</p>
             <form @submit.prevent="handleSubmit" class="space-y-5">
+            <!-- Categoría -->
+            <div>
+              <label class="block text-gray-400 text-xs font-semibold mb-2 uppercase tracking-wider">Categoría</label>
+              <select
+                v-model="categoriaSeleccionada"
+                @change="form.catalogo_id = ''"
+                class="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-gray-100 focus:outline-none focus:ring-1 focus:ring-cyan-500/50 focus:border-cyan-500 text-sm"
+              >
+                <option value="">Todas las categorías</option>
+                <option v-for="cat in categoriasDisponibles" :key="cat" :value="cat">
+                  {{ cat }}
+                </option>
+              </select>
+            </div>
+
             <!-- Catálogo -->
             <div>
               <label class="block text-gray-400 text-xs font-semibold mb-2 uppercase tracking-wider">Catálogo *</label>
@@ -19,7 +34,7 @@
                 class="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-gray-100 focus:outline-none focus:ring-1 focus:ring-cyan-500/50 focus:border-cyan-500 text-sm"
               >
                 <option value="">Selecciona un componente</option>
-                <option v-for="item in inventario.catalogo" :key="item.id" :value="item.id">
+                <option v-for="item in catalogosFiltrados" :key="item.id" :value="item.id">
                   {{ item.marca }} {{ item.modelo }} ({{ item.categoria }})
                 </option>
               </select>
@@ -79,7 +94,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useInventarioStore } from '../../stores/inventario.js'
 import { useAuthStore } from '../../stores/auth.js'
@@ -89,6 +104,31 @@ import Sidebar from '../../components/Sidebar.vue'
 const router = useRouter()
 const inventario = useInventarioStore()
 const auth = useAuthStore()
+
+onMounted(async () => {
+  if (!inventario.catalogo || inventario.catalogo.length === 0) {
+    await inventario.fetchCatalogo()
+  }
+})
+
+const categoriaSeleccionada = ref('')
+
+const categoriasDisponibles = computed(() => {
+  if (!inventario.catalogo) return []
+  const cats = inventario.catalogo
+    .filter(item => item.tipo_registro === 'Serializado' && item.categoria)
+    .map(item => item.categoria)
+  return [...new Set(cats)].sort()
+})
+
+const catalogosFiltrados = computed(() => {
+  if (!inventario.catalogo) return []
+  let list = inventario.catalogo.filter(item => item.tipo_registro === 'Serializado')
+  if (categoriaSeleccionada.value) {
+    list = list.filter(item => item.categoria === categoriaSeleccionada.value)
+  }
+  return list
+})
 
 const form = ref({
   catalogo_id: '',
