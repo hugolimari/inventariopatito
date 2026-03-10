@@ -1,31 +1,31 @@
 <template>
-  <div>
+  <div class="min-h-screen bg-gray-950">
     <Navbar />
     <div class="flex">
       <Sidebar />
-      <div class="flex-1 pl-72 p-8">
+      <div class="flex-1 pl-64 pt-[73px] p-8">
         <div class="mb-6">
-          <h1 class="text-3xl font-bold text-gray-800">Catálogo de Inventario</h1>
-          <p class="text-gray-600 mt-2">Busca y visualiza todos los componentes disponibles</p>
+          <h1 class="text-2xl font-bold text-gray-100">Catálogo de Inventario</h1>
+          <p class="text-gray-500 mt-1 text-sm">Busca y visualiza todos los componentes disponibles</p>
         </div>
 
         <!-- Búsqueda -->
-        <div class="bg-white rounded-lg shadow p-6 mb-6">
+        <div class="bg-gray-900 border border-gray-800 rounded-xl p-5 mb-6">
           <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
-              <label class="block text-gray-700 font-semibold mb-2">Buscar</label>
+              <label class="block text-gray-400 text-xs font-semibold mb-2 uppercase tracking-wider">Buscar</label>
               <input
                 v-model="filtros.busqueda"
                 type="text"
                 placeholder="Marca, modelo, categoría..."
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                class="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-cyan-500/50 focus:border-cyan-500 text-sm"
               />
             </div>
             <div>
-              <label class="block text-gray-700 font-semibold mb-2">Categoría</label>
+              <label class="block text-gray-400 text-xs font-semibold mb-2 uppercase tracking-wider">Categoría</label>
               <select
                 v-model="filtros.categoria"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                class="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-gray-100 focus:outline-none focus:ring-1 focus:ring-cyan-500/50 focus:border-cyan-500 text-sm"
               >
                 <option value="">Todas</option>
                 <option value="Computadoras">Computadoras</option>
@@ -37,10 +37,10 @@
               </select>
             </div>
             <div>
-              <label class="block text-gray-700 font-semibold mb-2">Tipo</label>
+              <label class="block text-gray-400 text-xs font-semibold mb-2 uppercase tracking-wider">Tipo</label>
               <select
                 v-model="filtros.tipo"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                class="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-gray-100 focus:outline-none focus:ring-1 focus:ring-cyan-500/50 focus:border-cyan-500 text-sm"
               >
                 <option value="">Todos</option>
                 <option value="Serializado">Serializado</option>
@@ -50,7 +50,7 @@
             <div class="flex items-end">
               <button
                 @click="limpiarFiltros"
-                class="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg"
+                class="w-full bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium py-2.5 px-4 rounded-xl border border-gray-700 transition text-sm"
               >
                 Limpiar
               </button>
@@ -59,37 +59,37 @@
         </div>
 
         <!-- Tabla de Catálogo -->
-        <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
           <div class="overflow-x-auto">
             <table class="w-full">
-              <thead class="bg-gray-100 border-b">
+              <thead class="bg-gray-800/40">
                 <tr>
-                  <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Categoría</th>
-                  <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Marca</th>
-                  <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Modelo</th>
-                  <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Tipo</th>
-                  <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Precio (Bs)</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Categoría</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Marca</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Modelo</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Tipo</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Precio (Bs)</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr v-for="item in catalogoFiltrado" :key="item.id" class="border-b hover:bg-gray-50">
-                  <td class="px-6 py-4 text-sm text-gray-900">{{ item.categoria }}</td>
-                  <td class="px-6 py-4 text-sm text-gray-900">{{ item.marca }}</td>
-                  <td class="px-6 py-4 text-sm text-gray-900">{{ item.modelo }}</td>
+              <tbody class="divide-y divide-gray-800/60">
+                <tr v-for="item in catalogoFiltrado" :key="item.id" class="hover:bg-gray-800/30 transition">
+                  <td class="px-6 py-4 text-sm text-gray-300">{{ item.categoria }}</td>
+                  <td class="px-6 py-4 text-sm text-gray-300">{{ item.marca }}</td>
+                  <td class="px-6 py-4 text-sm text-gray-200 font-medium">{{ item.modelo }}</td>
                   <td class="px-6 py-4 text-sm">
                     <span
-                      class="px-2 py-1 rounded text-xs font-semibold"
-                      :class="item.tipo_registro === 'Serializado' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'"
+                      class="px-2.5 py-1 rounded-lg text-xs font-semibold"
+                      :class="item.tipo_registro === 'Serializado' ? 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/30' : 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'"
                     >
                       {{ item.tipo_registro }}
                     </span>
                   </td>
-                  <td class="px-6 py-4 text-sm text-gray-900 font-semibold">Bs {{ item.precio }}</td>
+                  <td class="px-6 py-4 text-sm text-gray-200 font-semibold">Bs {{ item.precio }}</td>
                 </tr>
               </tbody>
             </table>
           </div>
-          <div v-if="catalogoFiltrado.length === 0" class="text-center py-8 text-gray-500">
+          <div v-if="catalogoFiltrado.length === 0" class="text-center py-12 text-gray-600">
             No hay items que coincidan con los filtros
           </div>
         </div>
@@ -133,11 +133,5 @@ const catalogoFiltrado = computed(() => {
 
 const limpiarFiltros = () => {
   filtros.value = { busqueda: '', categoria: '', tipo: '' }
-}
-
-const getStockClass = (stock) => {
-  if (!stock || stock === 0) return 'bg-red-100 text-red-800'
-  if (stock < 5) return 'bg-yellow-100 text-yellow-800'
-  return 'bg-green-100 text-green-800'
 }
 </script>

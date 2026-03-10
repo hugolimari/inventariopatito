@@ -1,23 +1,24 @@
 <template>
-  <div>
+  <div class="min-h-screen bg-gray-950">
     <Navbar />
     <div class="flex">
       <Sidebar />
-      <div class="flex-1 pl-72 p-8">
+      <div class="flex-1 pl-64 pt-[73px] p-8">
         <!-- Modal Nuevo Movimiento -->
-        <div class="fixed inset-0 flex items-center justify-center z-50" style="background: rgba(0,0,0,0.04);">
-          <div class="bg-white rounded-lg shadow-lg p-8 w-full max-w-md relative">
-            <h1 class="text-3xl font-bold text-gray-800 mb-2">Nuevo Movimiento</h1>
-            <p class="text-gray-600 mb-4">Registra un movimiento en el Kardex</p>
-            <form @submit.prevent="handleSubmit" class="space-y-6">
+        <div class="fixed inset-0 flex items-center justify-center z-50">
+          <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+          <div class="bg-gray-900 border border-gray-700 rounded-2xl shadow-2xl p-7 w-full max-w-md relative z-10">
+            <h1 class="text-2xl font-bold text-gray-100 mb-1">Nuevo Movimiento</h1>
+            <p class="text-gray-500 mb-5 text-sm">Registra un movimiento en el Kardex</p>
+            <form @submit.prevent="handleSubmit" class="space-y-4">
               <!-- Tipo de Movimiento -->
               <div>
-                <label class="block text-gray-700 font-semibold mb-2">Tipo de Movimiento *</label>
+                <label class="block text-gray-400 text-xs font-semibold mb-2 uppercase tracking-wider">Tipo de Movimiento *</label>
                 <select
                   v-model="form.tipo_movimiento"
                   @change="limpiarComponents"
                   required
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                  class="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-gray-100 focus:outline-none focus:ring-1 focus:ring-violet-500/50 focus:border-violet-500 text-sm"
                 >
                   <option value="">Selecciona un tipo</option>
                   <option value="Ingreso">Ingreso</option>
@@ -30,10 +31,10 @@
 
               <!-- Activo Fijo o Consumible -->
               <div v-if="mostrarActivos || form.tipo_movimiento === 'Venta'">
-                <label class="block text-gray-700 font-semibold mb-2">Activo Fijo *</label>
+                <label class="block text-gray-400 text-xs font-semibold mb-2 uppercase tracking-wider">Activo Fijo *</label>
                 <select
                   v-model="form.activo_fijo_id"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                  class="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-gray-100 focus:outline-none focus:ring-1 focus:ring-violet-500/50 focus:border-violet-500 text-sm"
                 >
                   <option value="">Selecciona un activo</option>
                   <option v-for="activo in inventario.activosFijos" :key="activo.id" :value="activo.id">
@@ -43,10 +44,10 @@
               </div>
 
               <div v-if="mostrarConsumibles || form.tipo_movimiento === 'Venta'">
-                <label class="block text-gray-700 font-semibold mb-2">Consumible *</label>
+                <label class="block text-gray-400 text-xs font-semibold mb-2 uppercase tracking-wider">Consumible *</label>
                 <select
                   v-model="form.lote_consumible_id"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                  class="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-gray-100 focus:outline-none focus:ring-1 focus:ring-violet-500/50 focus:border-violet-500 text-sm"
                 >
                   <option value="">Selecciona un consumible</option>
                   <option v-for="cons in inventario.consumibles" :key="cons.id" :value="cons.id">
@@ -55,12 +56,12 @@
                 </select>
               </div>
 
-              <!-- Receptor (es igual que para Check-out) -->
+              <!-- Receptor -->
               <div v-if="form.tipo_movimiento === 'Check-out'">
-                <label class="block text-gray-700 font-semibold mb-2">Entregar a (Usuario) *</label>
+                <label class="block text-gray-400 text-xs font-semibold mb-2 uppercase tracking-wider">Entregar a (Usuario) *</label>
                 <select
                   v-model="form.receptor_id"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                  class="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-gray-100 focus:outline-none focus:ring-1 focus:ring-violet-500/50 focus:border-violet-500 text-sm"
                 >
                   <option value="">Selecciona un usuario</option>
                   <option value="1">Carlos Almacenero</option>
@@ -73,43 +74,43 @@
 
               <!-- Cantidad -->
               <div v-if="mostrarConsumibles || form.tipo_movimiento === 'Check-in' || form.tipo_movimiento === 'Venta'">
-                <label class="block text-gray-700 font-semibold mb-2">Cantidad *</label>
+                <label class="block text-gray-400 text-xs font-semibold mb-2 uppercase tracking-wider">Cantidad *</label>
                 <input
                   v-model.number="form.cantidad_afectada"
                   type="number"
                   placeholder="Ej: 5"
                   required
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                  class="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50 focus:border-violet-500 text-sm"
                 />
               </div>
 
               <!-- Observaciones -->
               <div>
-                <label class="block text-gray-700 font-semibold mb-2">Observaciones</label>
+                <label class="block text-gray-400 text-xs font-semibold mb-2 uppercase tracking-wider">Observaciones</label>
                 <textarea
                   v-model="form.observaciones"
                   placeholder="Añade observaciones si es necesario..."
-                  rows="4"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                  rows="3"
+                  class="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50 focus:border-violet-500 text-sm resize-none"
                 ></textarea>
               </div>
 
               <!-- Botones -->
-              <div class="flex gap-4">
+              <div class="flex gap-3 pt-2">
                 <button
                   type="submit"
                   :disabled="loading"
-                  class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-8 rounded-lg disabled:opacity-50"
+                  class="bg-violet-600 hover:bg-violet-500 text-white font-medium py-2.5 px-6 rounded-xl disabled:opacity-50 transition text-sm shadow-lg shadow-violet-500/20"
                 >
                   {{ loading ? 'Registrando...' : 'Registrar Movimiento' }}
                 </button>
-                <button type="button" @click="cerrarModal" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-8 rounded-lg">
+                <button type="button" @click="cerrarModal" class="bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium py-2.5 px-6 rounded-xl border border-gray-700 transition text-sm">
                   Cancelar
                 </button>
               </div>
 
               <!-- Error -->
-              <div v-if="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+              <div v-if="error" class="bg-rose-500/10 border border-rose-500/30 text-rose-400 px-4 py-3 rounded-xl text-sm">
                 {{ error }}
               </div>
             </form>
@@ -171,7 +172,6 @@ const handleSubmit = async () => {
   loading.value = true
   error.value = ''
 
-  // Validaciones
   if (!form.value.tipo_movimiento) {
     error.value = 'Selecciona un tipo de movimiento'
     loading.value = false

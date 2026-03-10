@@ -1,30 +1,30 @@
 <template>
-  <div>
+  <div class="min-h-screen bg-gray-950">
     <Navbar />
     <div class="flex">
       <Sidebar />
-      <div class="flex-1 pl-72 p-8">
+      <div class="flex-1 pl-64 pt-[73px] p-8">
         <div class="flex justify-between items-center mb-6">
           <div>
-            <h1 class="text-3xl font-bold text-gray-800">Kardex - Movimientos</h1>
-            <p class="text-gray-600 mt-2">Historial de todas las transacciones</p>
+            <h1 class="text-2xl font-bold text-gray-100">Kardex - Movimientos</h1>
+            <p class="text-gray-500 mt-1 text-sm">Historial de todas las transacciones</p>
           </div>
           <router-link
             to="/movimientos/crear"
-            class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-lg"
+            class="bg-violet-600 hover:bg-violet-500 text-white font-medium py-2 px-5 rounded-xl text-sm transition shadow-lg shadow-violet-500/20"
           >
             + Nuevo Movimiento
           </router-link>
         </div>
 
         <!-- Filtros -->
-        <div class="bg-white rounded-lg shadow p-6 mb-6">
+        <div class="bg-gray-900 border border-gray-800 rounded-xl p-5 mb-6">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label class="block text-gray-700 font-semibold mb-2">Tipo de Movimiento</label>
+              <label class="block text-gray-400 text-xs font-semibold mb-2 uppercase tracking-wider">Tipo de Movimiento</label>
               <select
                 v-model="filtros.tipo"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                class="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-gray-100 focus:outline-none focus:ring-1 focus:ring-violet-500/50 focus:border-violet-500 text-sm"
               >
                 <option value="">Todos</option>
                 <option value="Ingreso">Ingreso</option>
@@ -35,18 +35,18 @@
               </select>
             </div>
             <div>
-              <label class="block text-gray-700 font-semibold mb-2">Usuario</label>
+              <label class="block text-gray-400 text-xs font-semibold mb-2 uppercase tracking-wider">Usuario</label>
               <input
                 v-model="filtros.usuario"
                 type="text"
                 placeholder="Buscar usuario..."
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                class="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50 focus:border-violet-500 text-sm"
               />
             </div>
             <div class="flex items-end">
               <button
                 @click="limpiarFiltros"
-                class="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg"
+                class="w-full bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium py-2.5 px-4 rounded-xl border border-gray-700 transition text-sm"
               >
                 Limpiar
               </button>
@@ -55,39 +55,39 @@
         </div>
 
         <!-- Tabla de Movimientos -->
-        <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
           <div class="overflow-x-auto">
             <table class="w-full">
-              <thead class="bg-gray-100 border-b">
+              <thead class="bg-gray-800/40">
                 <tr>
-                  <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Fecha</th>
-                  <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Tipo</th>
-                  <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Usuario</th>
-                  <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Componente</th>
-                  <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Cantidad</th>
-                  <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Observaciones</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Fecha</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Tipo</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Usuario</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Componente</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Cantidad</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Observaciones</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr v-for="mov in movimientosFiltrados" :key="mov.id" class="border-b hover:bg-gray-50">
-                  <td class="px-6 py-4 text-sm text-gray-900">{{ formatDate(mov.created_at) }}</td>
+              <tbody class="divide-y divide-gray-800/60">
+                <tr v-for="mov in movimientosFiltrados" :key="mov.id" class="hover:bg-gray-800/30 transition">
+                  <td class="px-6 py-4 text-sm text-gray-300 font-medium">{{ formatDate(mov.created_at) }}</td>
                   <td class="px-6 py-4 text-sm">
-                    <span :class="getTipoClass(mov.tipo_movimiento)" class="px-2 py-1 rounded text-xs font-semibold">
+                    <span :class="getTipoClass(mov.tipo_movimiento)" class="px-2.5 py-1 rounded-lg text-xs font-semibold">
                       {{ mov.tipo_movimiento }}
                     </span>
                   </td>
-                  <td class="px-6 py-4 text-sm text-gray-900">{{ mov.operador?.nombre_completo }}</td>
-                  <td class="px-6 py-4 text-sm text-gray-900">
+                  <td class="px-6 py-4 text-sm text-gray-300">{{ mov.operador?.nombre_completo }}</td>
+                  <td class="px-6 py-4 text-sm text-gray-400">
                     <span v-if="mov.activo_fijo">{{ mov.activo_fijo?.numero_serie }}</span>
                     <span v-else-if="mov.lote_consumible">{{ mov.lote_consumible?.catalogo?.modelo }}</span>
                   </td>
-                  <td class="px-6 py-4 text-sm font-semibold">{{ mov.cantidad_afectada }}</td>
-                  <td class="px-6 py-4 text-sm text-gray-600">{{ mov.observaciones }}</td>
+                  <td class="px-6 py-4 text-sm font-semibold text-gray-200">{{ mov.cantidad_afectada }}</td>
+                  <td class="px-6 py-4 text-sm text-gray-500">{{ mov.observaciones }}</td>
                 </tr>
               </tbody>
             </table>
           </div>
-          <div v-if="movimientosFiltrados.length === 0" class="text-center py-8 text-gray-500">
+          <div v-if="movimientosFiltrados.length === 0" class="text-center py-12 text-gray-600">
             No hay movimientos registrados
           </div>
         </div>
@@ -134,12 +134,12 @@ const formatDate = (date) => {
 
 const getTipoClass = (tipo) => {
   const classes = {
-    'Ingreso': 'bg-green-100 text-green-800',
-    'Check-out': 'bg-blue-100 text-blue-800',
-    'Check-in': 'bg-purple-100 text-purple-800',
-    'Baja': 'bg-red-100 text-red-800',
-    'Venta': 'bg-yellow-100 text-yellow-800',
+    'Ingreso': 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30',
+    'Check-out': 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/30',
+    'Check-in': 'bg-violet-500/15 text-violet-400 border border-violet-500/30',
+    'Baja': 'bg-rose-500/15 text-rose-400 border border-rose-500/30',
+    'Venta': 'bg-amber-500/15 text-amber-400 border border-amber-500/30',
   }
-  return classes[tipo] || 'bg-gray-100 text-gray-800'
+  return classes[tipo] || 'bg-gray-500/15 text-gray-400 border border-gray-500/30'
 }
 </script>

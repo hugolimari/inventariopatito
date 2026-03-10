@@ -1,24 +1,28 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-blue-600 via-blue-700 to-blue-900 flex items-center justify-center px-4 py-12">
+  <div class="min-h-screen bg-gray-950 flex items-center justify-center px-4 py-12 relative overflow-hidden">
     <!-- Background decoration -->
-    <div class="absolute top-0 left-0 w-96 h-96 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
-    <div class="absolute bottom-0 right-0 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse animation-delay-2000"></div>
+    <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-cyan-500/10 rounded-full filter blur-[120px] animate-pulse"></div>
+    <div class="absolute bottom-[-10%] right-[-5%] w-[500px] h-[500px] bg-teal-500/10 rounded-full filter blur-[120px] animate-pulse animation-delay-2000"></div>
+    <div class="absolute top-[40%] left-[50%] w-[300px] h-[300px] bg-violet-500/5 rounded-full filter blur-[100px]"></div>
 
     <!-- Login Card -->
     <div class="relative z-10 w-full max-w-md">
-      <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
+      <div class="bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl shadow-black/40 overflow-hidden backdrop-blur-sm">
         <!-- Header with gradient -->
-        <div class="bg-gradient-to-r from-blue-600 to-blue-800 px-8 py-8 text-white text-center">
-          <div class="text-5xl mb-4">📦</div>
-          <h1 class="text-3xl font-bold">Inventario</h1>
-          <p class="text-blue-100 text-sm mt-2">Sistema de Gestión de Hardware</p>
+        <div class="bg-gradient-to-r from-cyan-600 to-teal-600 px-8 py-8 text-white text-center relative">
+          <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMSIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjEpIi8+PC9zdmc+')] opacity-50"></div>
+          <div class="relative">
+            <div class="w-16 h-16 bg-white/15 rounded-2xl mx-auto mb-4 flex items-center justify-center text-4xl backdrop-blur-sm">📦</div>
+            <h1 class="text-2xl font-bold">Inventario</h1>
+            <p class="text-cyan-100/80 text-sm mt-1">Sistema de Gestión de Hardware</p>
+          </div>
         </div>
 
         <!-- Form -->
-        <form @submit.prevent="handleLogin" class="p-8 space-y-6">
+        <form @submit.prevent="handleLogin" class="p-8 space-y-5">
           <!-- Username Input -->
           <div class="space-y-2">
-            <label class="block text-sm font-semibold text-gray-700">
+            <label class="block text-sm font-medium text-gray-400">
               <span class="inline-flex items-center gap-2">
                 👤 Usuario
               </span>
@@ -27,15 +31,15 @@
               v-model="form.username"
               type="text"
               placeholder="admin"
-              class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-200 font-medium transition"
+              class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-gray-100 placeholder-gray-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 font-medium transition"
               required
             />
-            <p v-if="errors.username" class="text-red-600 text-sm font-medium">❌ {{ errors.username }}</p>
+            <p v-if="errors.username" class="text-rose-400 text-sm font-medium">{{ errors.username }}</p>
           </div>
 
           <!-- Password Input -->
           <div class="space-y-2">
-            <label class="block text-sm font-semibold text-gray-700">
+            <label class="block text-sm font-medium text-gray-400">
               <span class="inline-flex items-center gap-2">
                 🔒 Contraseña
               </span>
@@ -44,10 +48,10 @@
               v-model="form.password"
               type="password"
               placeholder="••••••••"
-              class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-200 font-medium transition"
+              class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-gray-100 placeholder-gray-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 font-medium transition"
               required
             />
-            <p v-if="errors.password" class="text-red-600 text-sm font-medium">❌ {{ errors.password }}</p>
+            <p v-if="errors.password" class="text-rose-400 text-sm font-medium">{{ errors.password }}</p>
           </div>
 
           <!-- Error Alert -->
@@ -56,8 +60,8 @@
             enter-from-class="opacity-0 translate-y-2"
             enter-to-class="opacity-100 translate-y-0"
           >
-            <div v-if="error" class="bg-red-50 border-2 border-red-300 text-red-800 px-5 py-4 rounded-lg">
-              <p class="flex items-center gap-2 text-sm font-semibold">
+            <div v-if="error" class="bg-rose-500/10 border border-rose-500/30 text-rose-400 px-5 py-4 rounded-xl">
+              <p class="flex items-center gap-2 text-sm font-medium">
                 <span>⚠️</span>
                 {{ error }}
               </p>
@@ -68,9 +72,9 @@
           <button
             type="submit"
             :disabled="loading"
-            class="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-3 px-4 rounded-lg transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+            class="w-full bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-500 hover:to-teal-500 text-white font-bold py-3 px-4 rounded-xl transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/30 flex items-center justify-center gap-2"
           >
-            <span v-if="!loading">🚀 Iniciar Sesión</span>
+            <span v-if="!loading">Iniciar Sesión</span>
             <span v-else class="flex items-center gap-2">
               <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -82,40 +86,30 @@
         </form>
 
         <!-- Divider -->
-        <div class="px-8 py-4 border-t border-gray-200"></div>
+        <div class="px-8">
+          <div class="border-t border-gray-800"></div>
+        </div>
 
         <!-- Demo Credentials -->
-        <div class="px-8 pb-8">
-          <p class="text-center text-sm font-semibold text-gray-700 mb-4">📋 Usuarios de Prueba</p>
+        <div class="px-8 py-6">
+          <p class="text-center text-xs font-medium text-gray-500 mb-4">Usuarios de Prueba</p>
           
-          <div class="space-y-3">
+          <div class="grid grid-cols-2 gap-3">
             <!-- Admin Card -->
-            <div class="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 hover:border-blue-400 transition">
-              <p class="font-bold text-gray-800 text-sm mb-2">👨‍💼 Admin</p>
-              <div class="space-y-1 text-xs text-gray-700">
-                <p class="flex items-center gap-2">
-                  <span class="font-semibold">Usuario:</span>
-                  <code class="bg-white px-2 py-1 rounded border border-blue-200 font-mono">admin</code>
-                </p>
-                <p class="flex items-center gap-2">
-                  <span class="font-semibold">Contraseña:</span>
-                  <code class="bg-white px-2 py-1 rounded border border-blue-200 font-mono">password123</code>
-                </p>
+            <div class="bg-cyan-500/5 border border-cyan-500/15 rounded-xl p-3.5 hover:border-cyan-500/30 transition">
+              <p class="font-semibold text-cyan-400 text-xs mb-2">👨‍💼 Admin</p>
+              <div class="space-y-1 text-[11px] text-gray-400">
+                <p><code class="bg-gray-800 px-1.5 py-0.5 rounded text-cyan-300 font-mono text-[10px]">admin</code></p>
+                <p><code class="bg-gray-800 px-1.5 py-0.5 rounded text-cyan-300 font-mono text-[10px]">password123</code></p>
               </div>
             </div>
 
             <!-- Tecnico Card -->
-            <div class="bg-green-50 border-2 border-green-200 rounded-lg p-4 hover:border-green-400 transition">
-              <p class="font-bold text-gray-800 text-sm mb-2">🔧 Técnico</p>
-              <div class="space-y-1 text-xs text-gray-700">
-                <p class="flex items-center gap-2">
-                  <span class="font-semibold">Usuario:</span>
-                  <code class="bg-white px-2 py-1 rounded border border-green-200 font-mono">tecnico1</code>
-                </p>
-                <p class="flex items-center gap-2">
-                  <span class="font-semibold">Contraseña:</span>
-                  <code class="bg-white px-2 py-1 rounded border border-green-200 font-mono">password123</code>
-                </p>
+            <div class="bg-emerald-500/5 border border-emerald-500/15 rounded-xl p-3.5 hover:border-emerald-500/30 transition">
+              <p class="font-semibold text-emerald-400 text-xs mb-2">🔧 Técnico</p>
+              <div class="space-y-1 text-[11px] text-gray-400">
+                <p><code class="bg-gray-800 px-1.5 py-0.5 rounded text-emerald-300 font-mono text-[10px]">tecnico1</code></p>
+                <p><code class="bg-gray-800 px-1.5 py-0.5 rounded text-emerald-300 font-mono text-[10px]">password123</code></p>
               </div>
             </div>
           </div>
@@ -123,7 +117,7 @@
       </div>
 
       <!-- Footer Info -->
-      <div class="text-center mt-6 text-white text-sm">
+      <div class="text-center mt-6 text-gray-600 text-xs">
         <p>Sistema de Gestión de Inventario v1.0</p>
       </div>
     </div>
@@ -179,19 +173,18 @@ const handleLogin = async () => {
 <style scoped>
 @keyframes pulse {
   0%, 100% {
-    opacity: 0.2;
+    opacity: 0.08;
   }
   50% {
-    opacity: 0.3;
+    opacity: 0.15;
   }
 }
 
 .animate-pulse {
-  animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  animation: pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 .animation-delay-2000 {
   animation-delay: 2s;
 }
 </style>
-

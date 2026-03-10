@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-slate-100 via-slate-50 to-blue-50">
+  <div class="min-h-screen bg-gray-950">
     <!-- Navbar -->
     <Navbar />
 
@@ -8,140 +8,146 @@
       <Sidebar />
 
       <!-- Main Content -->
-      <div class="flex-1 pl-72 pt-24 p-8">
+      <div class="flex-1 pl-64 pt-[73px] p-8">
         <!-- Header -->
         <div class="mb-8">
-          <h1 class="text-4xl font-bold text-gray-800 mb-2">👋 Bienvenido al Dashboard</h1>
-          <p class="text-gray-600">Resumen general del inventario</p>
+          <h1 class="text-3xl font-bold text-gray-100 mb-1">👋 Bienvenido al Dashboard</h1>
+          <p class="text-gray-500">Resumen general del inventario</p>
         </div>
 
         <!-- Statistics Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
           <!-- Card: Total Activos -->
-          <div class="group relative bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden">
-            <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-blue-600 to-blue-800 group-hover:w-full transition-all duration-300 opacity-20"></div>
-            <div class="p-6 relative z-10">
-              <div class="flex items-center justify-between mb-4">
-                <div class="bg-blue-100 rounded-lg p-3">
-                  <span class="text-3xl">📦</span>
+          <div class="group relative bg-gray-900 border border-gray-800 rounded-xl hover:border-cyan-500/30 transition-all duration-300 overflow-hidden">
+            <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-cyan-500 to-cyan-700 group-hover:shadow-[0_0_15px_rgba(6,182,212,0.3)] transition-all duration-300"></div>
+            <div class="p-5 relative z-10">
+              <div class="flex items-center justify-between mb-3">
+                <div class="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-2.5">
+                  <span class="text-2xl">📦</span>
                 </div>
                 <div class="text-right">
-                  <p class="text-sm font-semibold text-gray-600">Total Activos</p>
-                  <p class="text-3xl font-bold text-blue-600">{{ totalActivos }}</p>
+                  <p class="text-xs font-medium text-gray-500">Total Activos</p>
+                  <p class="text-2xl font-bold text-cyan-400">{{ totalActivos }}</p>
                 </div>
               </div>
-              <p class="text-xs text-gray-500">Activos fijos registrados</p>
+              <p class="text-[11px] text-gray-600">Activos fijos registrados</p>
             </div>
           </div>
 
           <!-- Card: Total Consumibles -->
-          <div class="group relative bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden">
-            <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-green-600 to-green-800 group-hover:w-full transition-all duration-300 opacity-20"></div>
-            <div class="p-6 relative z-10">
-              <div class="flex items-center justify-between mb-4">
-                <div class="bg-green-100 rounded-lg p-3">
-                  <span class="text-3xl">🔧</span>
+          <div class="group relative bg-gray-900 border border-gray-800 rounded-xl hover:border-emerald-500/30 transition-all duration-300 overflow-hidden">
+            <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-emerald-500 to-emerald-700 group-hover:shadow-[0_0_15px_rgba(16,185,129,0.3)] transition-all duration-300"></div>
+            <div class="p-5 relative z-10">
+              <div class="flex items-center justify-between mb-3">
+                <div class="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-2.5">
+                  <span class="text-2xl">🔧</span>
                 </div>
                 <div class="text-right">
-                  <p class="text-sm font-semibold text-gray-600">Consumibles</p>
-                  <p class="text-3xl font-bold text-green-600">{{ totalConsumibles }}</p>
+                  <p class="text-xs font-medium text-gray-500">Consumibles</p>
+                  <p class="text-2xl font-bold text-emerald-400">{{ totalConsumibles }}</p>
                 </div>
               </div>
-              <p class="text-xs text-gray-500">Lotes de consumibles</p>
+              <p class="text-[11px] text-gray-600">Lotes de consumibles</p>
             </div>
           </div>
 
           <!-- Card: Movimientos Hoy -->
-          <div class="group relative bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden">
-            <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-purple-600 to-purple-800 group-hover:w-full transition-all duration-300 opacity-20"></div>
-            <div class="p-6 relative z-10">
-              <div class="flex items-center justify-between mb-4">
-                <div class="bg-purple-100 rounded-lg p-3">
-                  <span class="text-3xl">📋</span>
+          <div class="group relative bg-gray-900 border border-gray-800 rounded-xl hover:border-violet-500/30 transition-all duration-300 overflow-hidden">
+            <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-violet-500 to-violet-700 group-hover:shadow-[0_0_15px_rgba(139,92,246,0.3)] transition-all duration-300"></div>
+            <div class="p-5 relative z-10">
+              <div class="flex items-center justify-between mb-3">
+                <div class="bg-violet-500/10 border border-violet-500/20 rounded-lg p-2.5">
+                  <span class="text-2xl">📋</span>
                 </div>
                 <div class="text-right">
-                  <p class="text-sm font-semibold text-gray-600">Movimientos Hoy</p>
-                  <p class="text-3xl font-bold text-purple-600">{{ movimientosHoy }}</p>
+                  <p class="text-xs font-medium text-gray-500">Movimientos Hoy</p>
+                  <p class="text-2xl font-bold text-violet-400">{{ movimientosHoy }}</p>
                 </div>
               </div>
-              <p class="text-xs text-gray-500">Registrados en el día</p>
+              <p class="text-[11px] text-gray-600">Registrados en el día</p>
             </div>
           </div>
 
           <!-- Card: Activos Asignados -->
-          <div class="group relative bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden">
-            <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-orange-600 to-orange-800 group-hover:w-full transition-all duration-300 opacity-20"></div>
-            <div class="p-6 relative z-10">
-              <div class="flex items-center justify-between mb-4">
-                <div class="bg-orange-100 rounded-lg p-3">
-                  <span class="text-3xl">👤</span>
+          <div class="group relative bg-gray-900 border border-gray-800 rounded-xl hover:border-amber-500/30 transition-all duration-300 overflow-hidden">
+            <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-amber-500 to-amber-700 group-hover:shadow-[0_0_15px_rgba(245,158,11,0.3)] transition-all duration-300"></div>
+            <div class="p-5 relative z-10">
+              <div class="flex items-center justify-between mb-3">
+                <div class="bg-amber-500/10 border border-amber-500/20 rounded-lg p-2.5">
+                  <span class="text-2xl">👤</span>
                 </div>
                 <div class="text-right">
-                  <p class="text-sm font-semibold text-gray-600">Asignados</p>
-                  <p class="text-3xl font-bold text-orange-600">{{ activosAsignados }}</p>
+                  <p class="text-xs font-medium text-gray-500">Asignados</p>
+                  <p class="text-2xl font-bold text-amber-400">{{ activosAsignados }}</p>
                 </div>
               </div>
-              <p class="text-xs text-gray-500">Activos en uso</p>
+              <p class="text-[11px] text-gray-600">Activos en uso</p>
             </div>
           </div>
         </div>
 
         <!-- Últimos Movimientos -->
-        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-          <div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white px-8 py-6">
-            <h2 class="text-2xl font-bold flex items-center gap-2">
+        <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+          <div class="px-6 py-5 border-b border-gray-800">
+            <h2 class="text-lg font-bold text-gray-100 flex items-center gap-2">
               <span>📊</span> Últimos Movimientos
             </h2>
           </div>
           
           <div v-if="ultimosMovimientos.length > 0" class="overflow-x-auto">
             <table class="w-full">
-              <thead class="bg-gray-50 border-b-2 border-gray-200">
+              <thead class="bg-gray-800/40">
                 <tr>
-                  <th class="px-6 py-4 text-left text-sm font-bold text-gray-700">📅 Fecha</th>
-                  <th class="px-6 py-4 text-left text-sm font-bold text-gray-700">🏷️ Tipo</th>
-                  <th class="px-6 py-4 text-left text-sm font-bold text-gray-700">👤 Usuario</th>
-                  <th class="px-6 py-4 text-left text-sm font-bold text-gray-700">📝 Observaciones</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Fecha</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Tipo</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Usuario</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Observaciones</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider"></th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-gray-200">
-                <tr v-for="move in ultimosMovimientos" :key="move.id" class="hover:bg-gray-50 transition">
-                  <td class="px-6 py-4 text-sm text-gray-800 font-semibold">{{ formatDate(move.created_at) }}</td>
+              <tbody class="divide-y divide-gray-800/60">
+                <tr v-for="move in ultimosMovimientos" :key="move.id" class="hover:bg-gray-800/30 transition">
+                  <td class="px-6 py-4 text-sm text-gray-300 font-medium">{{ formatDate(move.created_at) }}</td>
                   <td class="px-6 py-4">
-                    <span class="px-3 py-1 rounded-full text-xs font-bold inline-block" :class="getTipoClass(move.tipo_movimiento)">
+                    <span class="px-2.5 py-1 rounded-lg text-xs font-semibold" :class="getTipoClass(move.tipo_movimiento)">
                       {{ move.tipo_movimiento }}
                     </span>
                   </td>
-                  <td class="px-6 py-4 text-sm text-gray-800">{{ move.operador?.nombre_completo || 'N/A' }}</td>
-                  <td class="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">{{ move.observaciones || '—' }}</td>
+                  <td class="px-6 py-4 text-sm text-gray-300">{{ move.operador?.nombre_completo || 'N/A' }}</td>
+                  <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">{{ move.observaciones || '—' }}</td>
                   <td class="px-6 py-4 text-sm">
-                    <button @click="verDetalles(move)" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-1 px-4 rounded-lg">Ver detalles</button>
+                    <button @click="verDetalles(move)" class="text-cyan-400 hover:text-cyan-300 font-medium text-xs px-3 py-1.5 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/20 transition">Ver detalles</button>
                   </td>
                 </tr>
-                      <!-- Modal Detalles Movimiento -->
-                      <div v-if="mostrarDetalles" class="fixed inset-0 flex items-center justify-center z-50" style="z-index:9999">
-                        <div class="absolute inset-0 pointer-events-none" style="background: rgba(0,0,0,0.08); z-index:9998;"></div>
-                        <div class="bg-white rounded-lg shadow-lg p-8 w-full max-w-md relative" style="z-index:9999;">
-                          <h2 class="text-xl font-bold mb-4">Detalles del Movimiento</h2>
-                          <div class="mb-2"><strong>Fecha:</strong> {{ formatDate(detalleMovimiento.created_at) }}</div>
-                          <div class="mb-2"><strong>Tipo:</strong> {{ detalleMovimiento.tipo_movimiento }}</div>
-                          <div class="mb-2"><strong>Usuario:</strong> {{ detalleMovimiento.operador?.nombre_completo || 'N/A' }}</div>
-                          <div class="mb-2"><strong>Observaciones:</strong> {{ detalleMovimiento.observaciones || '—' }}</div>
-                          <div class="mb-2"><strong>Componente:</strong>
-                            <span v-if="detalleMovimiento.activo_fijo">Activo Fijo: {{ detalleMovimiento.activo_fijo?.numero_serie }} ({{ detalleMovimiento.activo_fijo?.catalogo?.marca }} {{ detalleMovimiento.activo_fijo?.catalogo?.modelo }})</span>
-                            <span v-else-if="detalleMovimiento.lote_consumible">Consumible: {{ detalleMovimiento.lote_consumible?.catalogo?.modelo }} (Disponible: {{ detalleMovimiento.lote_consumible?.cantidad_disponible }})</span>
-                            <span v-else>—</span>
-                          </div>
-                          <div class="mb-2"><strong>Cantidad afectada:</strong> {{ detalleMovimiento.cantidad_afectada }}</div>
-                          <div class="flex justify-end mt-4">
-                            <button @click="cerrarDetalles" class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg">Cerrar</button>
-                          </div>
-                        </div>
-                      </div>
               </tbody>
             </table>
           </div>
-          <div v-else class="text-center text-gray-500 py-12">
+
+          <!-- Modal Detalles Movimiento -->
+          <div v-if="mostrarDetalles" class="fixed inset-0 flex items-center justify-center z-50">
+            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="cerrarDetalles"></div>
+            <div class="bg-gray-900 border border-gray-700 rounded-2xl shadow-2xl p-7 w-full max-w-md relative z-10">
+              <h2 class="text-lg font-bold text-gray-100 mb-5">Detalles del Movimiento</h2>
+              <div class="space-y-3 text-sm">
+                <div class="flex justify-between"><span class="text-gray-500">Fecha:</span><span class="text-gray-200">{{ formatDate(detalleMovimiento.created_at) }}</span></div>
+                <div class="flex justify-between"><span class="text-gray-500">Tipo:</span><span class="text-gray-200">{{ detalleMovimiento.tipo_movimiento }}</span></div>
+                <div class="flex justify-between"><span class="text-gray-500">Usuario:</span><span class="text-gray-200">{{ detalleMovimiento.operador?.nombre_completo || 'N/A' }}</span></div>
+                <div class="flex justify-between"><span class="text-gray-500">Observaciones:</span><span class="text-gray-200">{{ detalleMovimiento.observaciones || '—' }}</span></div>
+                <div>
+                  <span class="text-gray-500">Componente:</span>
+                  <span v-if="detalleMovimiento.activo_fijo" class="text-gray-200 ml-2">Activo Fijo: {{ detalleMovimiento.activo_fijo?.numero_serie }} ({{ detalleMovimiento.activo_fijo?.catalogo?.marca }} {{ detalleMovimiento.activo_fijo?.catalogo?.modelo }})</span>
+                  <span v-else-if="detalleMovimiento.lote_consumible" class="text-gray-200 ml-2">Consumible: {{ detalleMovimiento.lote_consumible?.catalogo?.modelo }} (Disponible: {{ detalleMovimiento.lote_consumible?.cantidad_disponible }})</span>
+                  <span v-else class="text-gray-500 ml-2">—</span>
+                </div>
+                <div class="flex justify-between"><span class="text-gray-500">Cantidad:</span><span class="text-gray-200 font-semibold">{{ detalleMovimiento.cantidad_afectada }}</span></div>
+              </div>
+              <div class="flex justify-end mt-6">
+                <button @click="cerrarDetalles" class="bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium py-2 px-5 rounded-xl border border-gray-700 transition">Cerrar</button>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="ultimosMovimientos.length === 0" class="text-center text-gray-600 py-12">
             <p class="text-lg">📭 No hay movimientos registrados</p>
           </div>
         </div>
@@ -191,12 +197,12 @@ const formatDate = (date) => {
 
 const getTipoClass = (tipo) => {
   const classes = {
-    'Ingreso': 'bg-green-100 text-green-800',
-    'Check-out': 'bg-blue-100 text-blue-800',
-    'Check-in': 'bg-purple-100 text-purple-800',
-    'Baja': 'bg-red-100 text-red-800',
-    'Venta': 'bg-yellow-100 text-yellow-800',
+    'Ingreso': 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30',
+    'Check-out': 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/30',
+    'Check-in': 'bg-violet-500/15 text-violet-400 border border-violet-500/30',
+    'Baja': 'bg-rose-500/15 text-rose-400 border border-rose-500/30',
+    'Venta': 'bg-amber-500/15 text-amber-400 border border-amber-500/30',
   }
-  return classes[tipo] || 'bg-gray-100 text-gray-800'
+  return classes[tipo] || 'bg-gray-500/15 text-gray-400 border border-gray-500/30'
 }
 </script>

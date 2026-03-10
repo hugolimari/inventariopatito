@@ -1,21 +1,22 @@
 <template>
-  <div>
+  <div class="min-h-screen bg-gray-950">
     <Navbar />
     <div class="flex">
       <Sidebar />
-      <div class="flex-1 pl-72 p-8">
-        <div class="fixed inset-0 flex items-center justify-center z-50" style="background: rgba(0,0,0,0.04);">
-          <div class="bg-white rounded-lg shadow-lg p-8 w-full max-w-2xl relative">
-            <h1 class="text-3xl font-bold text-gray-800 mb-2">Nuevo Activo Fijo</h1>
-            <p class="text-gray-600 mb-4">Registra un nuevo componente serializado</p>
-            <form @submit.prevent="handleSubmit" class="space-y-6">
+      <div class="flex-1 pl-64 pt-[73px] p-8">
+        <div class="fixed inset-0 flex items-center justify-center z-50">
+          <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+          <div class="bg-gray-900 border border-gray-700 rounded-2xl shadow-2xl p-7 w-full max-w-2xl relative z-10">
+            <h1 class="text-2xl font-bold text-gray-100 mb-1">Nuevo Activo Fijo</h1>
+            <p class="text-gray-500 mb-5 text-sm">Registra un nuevo componente serializado</p>
+            <form @submit.prevent="handleSubmit" class="space-y-5">
             <!-- Catálogo -->
             <div>
-              <label class="block text-gray-700 font-semibold mb-2">Catálogo *</label>
+              <label class="block text-gray-400 text-xs font-semibold mb-2 uppercase tracking-wider">Catálogo *</label>
               <select
                 v-model="form.catalogo_id"
                 required
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                class="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-gray-100 focus:outline-none focus:ring-1 focus:ring-cyan-500/50 focus:border-cyan-500 text-sm"
               >
                 <option value="">Selecciona un componente</option>
                 <option v-for="item in inventario.catalogo" :key="item.id" :value="item.id">
@@ -26,23 +27,23 @@
 
             <!-- Número de Serie -->
             <div>
-              <label class="block text-gray-700 font-semibold mb-2">Número de Serie *</label>
+              <label class="block text-gray-400 text-xs font-semibold mb-2 uppercase tracking-wider">Número de Serie *</label>
               <input
                 v-model="form.numero_serie"
                 type="text"
                 placeholder="Ej: DELL-001-2024"
                 required
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                class="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-cyan-500/50 focus:border-cyan-500 text-sm"
               />
             </div>
 
             <!-- Estado -->
             <div>
-              <label class="block text-gray-700 font-semibold mb-2">Estado *</label>
+              <label class="block text-gray-400 text-xs font-semibold mb-2 uppercase tracking-wider">Estado *</label>
               <select
                 v-model="form.estado"
                 required
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                class="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-gray-100 focus:outline-none focus:ring-1 focus:ring-cyan-500/50 focus:border-cyan-500 text-sm"
               >
                 <option value="">Selecciona un estado</option>
                 <option value="En Almacén">En Almacén</option>
@@ -52,21 +53,21 @@
             </div>
 
             <!-- Botones -->
-            <div class="flex gap-4">
+            <div class="flex gap-3 pt-2">
               <button
                 type="submit"
                 :disabled="loading"
-                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-8 rounded-lg disabled:opacity-50"
+                class="bg-cyan-600 hover:bg-cyan-500 text-white font-medium py-2.5 px-6 rounded-xl disabled:opacity-50 transition text-sm shadow-lg shadow-cyan-500/20"
               >
                 {{ loading ? 'Guardando...' : 'Guardar Activo' }}
               </button>
-              <router-link to="/activos-fijos" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-8 rounded-lg">
+              <router-link to="/activos-fijos" class="bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium py-2.5 px-6 rounded-xl border border-gray-700 transition text-sm">
                 Cancelar
               </router-link>
             </div>
 
             <!-- Error -->
-            <div v-if="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+            <div v-if="error" class="bg-rose-500/10 border border-rose-500/30 text-rose-400 px-4 py-3 rounded-xl text-sm">
               {{ error }}
             </div>
           </form>
