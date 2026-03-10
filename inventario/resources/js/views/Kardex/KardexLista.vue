@@ -183,11 +183,29 @@ const exportarPDF = () => {
     head: [['Fecha', 'Tipo', 'Usuario', 'Componente', 'Cantidad', 'Observaciones']],
     body: tableData,
     theme: 'grid',
-    headStyles: { fillColor: [139, 92, 246] }, // violet-500 para combinar con el Kardex
+    headStyles: { fillColor: [59, 130, 246] }, // blue-500
     styles: { fontSize: 8 },
     alternateRowStyles: { fillColor: [245, 247, 250] } // Light gray contrast
   })
 
-  doc.save('kardex_movimientos_inventario.pdf')
+  // Format date and time for Bolivia
+  const dateObj = new Date()
+  const dateStr = dateObj.toLocaleDateString('es-BO', { 
+    year: 'numeric', 
+    month: '2-digit', 
+    day: '2-digit',
+    timeZone: 'America/La_Paz'
+  }).replace(/\//g, '-')
+  
+  const timeStr = dateObj.toLocaleTimeString('es-BO', { 
+    hour: '2-digit', 
+    minute: '2-digit', 
+    second: '2-digit',
+    hour12: false,
+    timeZone: 'America/La_Paz'
+  }).replace(/:/g, '')
+
+  const fileName = `kardex_${dateStr}_${timeStr}.pdf`
+  doc.save(fileName)
 }
 </script>
