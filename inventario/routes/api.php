@@ -36,7 +36,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('lotes-consumibles', LoteConsumibleController::class);
 
     // Kardex de movimientos
-    Route::apiResource('kardex', KardexMovimientoController::class);
+    Route::apiResource('kardex-movimientos', KardexMovimientoController::class);
 
     // Proveedores
     Route::apiResource('proveedores', ProveedorController::class);

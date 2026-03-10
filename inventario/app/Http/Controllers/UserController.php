@@ -22,6 +22,7 @@ class UserController extends Controller
             'username'        => $u->username,
             'rol'             => $u->rol,
             'turno'           => $u->turno,
+            'activo'          => $u->activo ? 1 : 0,
             'created_at'      => $u->created_at?->format('Y-m-d H:i:s'),
         ])]);
     }
@@ -62,8 +63,11 @@ class UserController extends Controller
     public function update(UpdateUserRequest $request, string $id): JsonResponse
     {
         $user = User::findOrFail($id);
-        $user->update($request->validated());
-
+        $data = $request->validated();
+        if (isset($data['activo'])) {
+            $user->activo = $data['activo'] ? 1 : 0;
+        }
+        $user->update($data);
         return response()->json([
             'message' => 'Usuario actualizado con éxito.',
             'data'    => $user,
@@ -71,15 +75,15 @@ class UserController extends Controller
     }
 
     /**
-     * Elimina un usuario.
+     * Da de baja (desactiva) un usuario.
      */
     public function destroy(string $id): JsonResponse
     {
         $user = User::findOrFail($id);
-        $user->delete();
-
+        $user->activo = false;
+        $user->save();
         return response()->json([
-            'message' => 'Usuario eliminado con éxito.',
+            'message' => 'Usuario dado de baja con éxito.',
         ]);
     }
 }
