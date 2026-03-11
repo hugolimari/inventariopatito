@@ -154,7 +154,7 @@ onMounted(async () => {
 })
 
 const mostrarActivos = computed(() => {
-  return ['Check-out', 'Check-in', 'Baja'].includes(form.value.tipo_movimiento)
+  return ['Ingreso', 'Check-out', 'Check-in', 'Baja'].includes(form.value.tipo_movimiento)
 })
 
 const mostrarConsumibles = computed(() => {

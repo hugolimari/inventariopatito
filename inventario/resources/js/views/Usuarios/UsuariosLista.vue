@@ -37,12 +37,8 @@
                   </td>
                   <td class="px-6 py-4 text-sm text-gray-400">{{ usuario.turno }}</td>
                   <td class="px-6 py-4 text-sm flex items-center gap-2">
-                    <span :class="usuario.activo == 1 ? 'text-emerald-400' : 'text-rose-400'" class="font-semibold text-xs">
-                      {{ usuario.activo == 1 ? '● Activo' : '● Inactivo' }}
-                    </span>
                     <button @click="editarUsuario(usuario)" class="text-cyan-400 hover:text-cyan-300 font-medium text-xs px-2.5 py-1 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/20 transition">Editar</button>
-                    <button v-if="usuario.activo == 1" @click="darDeBajaUsuario(usuario.id)" class="text-rose-400 hover:text-rose-300 font-medium text-xs px-2.5 py-1 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 transition">Inhabilitar</button>
-                    <button v-else @click="activarUsuario(usuario.id)" class="text-emerald-400 hover:text-emerald-300 font-medium text-xs px-2.5 py-1 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 transition">Activar</button>
+                    <button @click="eliminarUsuario(usuario.id)" class="text-rose-400 hover:text-rose-300 font-medium text-xs px-2.5 py-1 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 transition">Eliminar</button>
                   </td>
                 </tr>
               </tbody>
@@ -151,16 +147,9 @@ const guardarUsuario = async () => {
   cargarUsuarios()
 }
 
-const darDeBajaUsuario = async (id) => {
-  if (confirm('¿Seguro que deseas inhabilitar este usuario?')) {
+const eliminarUsuario = async (id) => {
+  if (confirm('¿Seguro que deseas eliminar definitivamente este usuario?')) {
     await client.delete(`/usuarios/${id}`)
-    cargarUsuarios()
-  }
-}
-
-const activarUsuario = async (id) => {
-  if (confirm('¿Seguro que deseas activar este usuario?')) {
-    await client.put(`/usuarios/${id}`, { activo: true })
     cargarUsuarios()
   }
 }

@@ -87,6 +87,33 @@
               </form>
             </div>
           </div>
+
+          <!-- Modal Editar Consumible -->
+          <div v-if="mostrarModal" class="fixed inset-0 flex items-center justify-center z-50">
+            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="cerrarModal"></div>
+            <div class="bg-gray-900 border border-gray-700 rounded-2xl shadow-2xl p-7 w-full max-w-md relative z-10">
+              <h2 class="text-lg font-bold text-gray-100 mb-5">Editar Consumible</h2>
+              <form @submit.prevent="guardarConsumible" class="space-y-4">
+                <div>
+                  <label class="block text-gray-400 text-xs font-semibold mb-2 uppercase tracking-wider">Consumible *</label>
+                  <select v-model="form.catalogo_id" required class="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-gray-100 focus:outline-none focus:ring-1 focus:ring-cyan-500/50 focus:border-cyan-500 text-sm">
+                    <option value="" disabled>Seleccione un consumible</option>
+                    <option v-for="item in inventario.catalogo.filter(c => c.tipo_registro === 'Consumible')" :key="item.id" :value="item.id">
+                      {{ item.marca }} {{ item.modelo }}
+                    </option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-gray-400 text-xs font-semibold mb-2 uppercase tracking-wider">Cantidad Disponible *</label>
+                  <input v-model.number="form.cantidad_disponible" type="number" min="0" required class="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-gray-100 focus:outline-none focus:ring-1 focus:ring-cyan-500/50 focus:border-cyan-500 text-sm" />
+                </div>
+                <div class="flex justify-end gap-3 pt-2">
+                  <button type="button" @click="cerrarModal" class="bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium py-2 px-5 rounded-xl border border-gray-700 transition text-sm">Cancelar</button>
+                  <button type="submit" class="bg-cyan-600 hover:bg-cyan-500 text-white font-medium py-2 px-5 rounded-xl transition text-sm shadow-lg shadow-cyan-500/20">Guardar Cambios</button>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
 
         <!-- Tabla de Consumibles -->

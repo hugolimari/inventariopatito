@@ -6,8 +6,10 @@ use App\Http\Requests\StoreActivoFijoRequest;
 use App\Http\Requests\UpdateActivoFijoRequest;
 use App\Http\Resources\ActivoFijoResource;
 use App\Models\ActivoFijo;
+use App\Models\KardexMovimiento;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ActivoFijoController extends Controller
 {
@@ -29,17 +31,35 @@ class ActivoFijoController extends Controller
      */
     public function store(StoreActivoFijoRequest $request): JsonResponse
     {
-        $activo = ActivoFijo::create(array_merge(
-            $request->validated(),
-            ['creado_por' => $request->user()->id]
-        ));
+        try {
+            DB::beginTransaction();
 
-        $activo->load('catalogo');
+            $activo = ActivoFijo::create(array_merge(
+                $request->validated(),
+                ['creado_por' => $request->user()->id]
+            ));
 
-        return response()->json([
-            'message' => "Activo fijo S/N {$activo->numero_serie} registrado con éxito.",
-            'data'    => new ActivoFijoResource($activo),
-        ], 201);
+            // Registro automático en el Kardex al ingresar
+            KardexMovimiento::create([
+                'tipo_movimiento'   => 'Ingreso',
+                'activo_fijo_id'    => $activo->id,
+                'operador_id'       => $request->user()->id,
+                'cantidad_afectada' => 1,
+                'observaciones'     => 'Ingreso inicial al sistema',
+            ]);
+
+            DB::commit();
+
+            $activo->load('catalogo');
+
+            return response()->json([
+                'message' => "Activo fijo S/N {$activo->numero_serie} registrado con éxito.",
+                'data'    => new ActivoFijoResource($activo),
+            ], 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Error al registrar activo.', 'error' => $e->getMessage()], 422);
+        }
     }
 
     /**
@@ -59,13 +79,56 @@ class ActivoFijoController extends Controller
      */
     public function update(UpdateActivoFijoRequest $request, string $id): JsonResponse
     {
-        $activo = ActivoFijo::findOrFail($id);
-        $activo->update($request->validated());
+        try {
+            DB::beginTransaction();
+            $activo = ActivoFijo::findOrFail($id);
+            $datosViejosAsignado = $activo->asignado_a;
+            $datosViejosEstado = $activo->estado;
+            
+            $activo->update($request->validated());
 
-        return response()->json([
-            'message' => 'Activo fijo actualizado con éxito.',
-            'data'    => new ActivoFijoResource($activo),
-        ]);
+            // Detectar si fue asignado a alguien (Check-out) o devuelto (Check-in)
+            if ($activo->asignado_a !== $datosViejosAsignado) {
+                if ($activo->asignado_a !== null && $datosViejosAsignado === null) {
+                    KardexMovimiento::create([
+                        'tipo_movimiento'   => 'Check-out',
+                        'activo_fijo_id'    => $activo->id,
+                        'operador_id'       => $request->user()->id,
+                        'receptor_id'       => $activo->asignado_a,
+                        'cantidad_afectada' => 1,
+                        'observaciones'     => 'Asignación desde edición de activo',
+                    ]);
+                } elseif ($activo->asignado_a === null && $datosViejosAsignado !== null) {
+                    KardexMovimiento::create([
+                        'tipo_movimiento'   => 'Check-in',
+                        'activo_fijo_id'    => $activo->id,
+                        'operador_id'       => $request->user()->id,
+                        'cantidad_afectada' => 1,
+                        'observaciones'     => 'Devolución desde edición de activo',
+                    ]);
+                }
+            }
+            
+            // Detectar si cambian a Dado de Baja manually
+            if ($activo->estado === 'Dado de Baja' && $datosViejosEstado !== 'Dado de Baja') {
+                 KardexMovimiento::create([
+                        'tipo_movimiento'   => 'Baja',
+                        'activo_fijo_id'    => $activo->id,
+                        'operador_id'       => $request->user()->id,
+                        'cantidad_afectada' => 1,
+                        'observaciones'     => 'Dado de baja manual',
+                 ]);
+            }
+
+            DB::commit();
+            return response()->json([
+                'message' => 'Activo fijo actualizado con éxito.',
+                'data'    => new ActivoFijoResource($activo),
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Error al actualizar activo.', 'error' => $e->getMessage()], 422);
+        }
     }
 
     /**
